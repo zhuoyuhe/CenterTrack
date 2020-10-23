@@ -24,16 +24,16 @@ class KITTI(GenericDataset):
   cat_ids = {1:1, 2:2, 3:3, 4:-2, 5:-2, 6:-1, 7:-9999, 8:-9999, 9:0}
   max_objs = 50
   def __init__(self, opt, split):
-    data_dir = os.path.join(opt.data_dir, 'kitti')
+    data_dir = os.path.join(opt.data_dir, 'kitti_tracking')
     img_dir = os.path.join(data_dir, 'images', 'trainval')
     if opt.trainval:
       split = 'trainval' if split == 'train' else 'test'
       img_dir = os.path.join(data_dir, 'images', split)
       ann_path = os.path.join(
-        data_dir, 'annotations', 'kitti_v2_{}.json').format(split)
+        data_dir, 'annotations', 'tracking_val_half.json')
     else:
       ann_path = os.path.join(data_dir, 
-        'annotations', 'kitti_v2_{}_{}.json').format(opt.kitti_split, split)
+        'annotations', 'tracking_val_half.json')
 
     self.images = None
     # load image list and coco
