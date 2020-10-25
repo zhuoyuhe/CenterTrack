@@ -722,47 +722,47 @@ void saveAndPlotPlots(string dir_name,string file_name,string obj_type,vector<do
   printf("%s AP: %f %f %f\n", file_name.c_str(), sum[0] / 11 * 100, sum[1] / 11 * 100, sum[2] / 11 * 100);
 
 
-  // create png + eps
-  for (int32_t j=0; j<2; j++) {
-
-    // open file
-    FILE *fp = fopen((dir_name + "/" + file_name + ".gp").c_str(),"w");
-
-    // save gnuplot instructions
-    if (j==0) {
-      fprintf(fp,"set term png size 450,315 font \"Helvetica\" 11\n");
-      fprintf(fp,"set output \"%s.png\"\n",file_name.c_str());
-    } else {
-      fprintf(fp,"set term postscript eps enhanced color font \"Helvetica\" 20\n");
-      fprintf(fp,"set output \"%s.eps\"\n",file_name.c_str());
-    }
-
-    // set labels and ranges
-    fprintf(fp,"set size ratio 0.7\n");
-    fprintf(fp,"set xrange [0:1]\n");
-    fprintf(fp,"set yrange [0:1]\n");
-    fprintf(fp,"set xlabel \"Recall\"\n");
-    if (!is_aos) fprintf(fp,"set ylabel \"Precision\"\n");
-    else         fprintf(fp,"set ylabel \"Orientation Similarity\"\n");
-    obj_type[0] = toupper(obj_type[0]);
-    fprintf(fp,"set title \"%s\"\n",obj_type.c_str());
-
-    // line width
-    int32_t   lw = 5;
-    if (j==0) lw = 3;
-
-    // plot error curve
-    fprintf(fp,"plot ");
-    fprintf(fp,"\"%s.txt\" using 1:2 title 'Easy' with lines ls 1 lw %d,",file_name.c_str(),lw);
-    fprintf(fp,"\"%s.txt\" using 1:3 title 'Moderate' with lines ls 2 lw %d,",file_name.c_str(),lw);
-    fprintf(fp,"\"%s.txt\" using 1:4 title 'Hard' with lines ls 3 lw %d",file_name.c_str(),lw);
-
-    // close file
-    fclose(fp);
-
-    // run gnuplot => create png + eps
-    sprintf(command,"cd %s; gnuplot %s",dir_name.c_str(),(file_name + ".gp").c_str());
-    system(command);
+//  // create png + eps
+//  for (int32_t j=0; j<2; j++) {
+//
+//    // open file
+//    FILE *fp = fopen((dir_name + "/" + file_name + ".gp").c_str(),"w");
+//
+//    // save gnuplot instructions
+//    if (j==0) {
+//      fprintf(fp,"set term png size 450,315 font \"Helvetica\" 11\n");
+//      fprintf(fp,"set output \"%s.png\"\n",file_name.c_str());
+//    } else {
+//      fprintf(fp,"set term postscript eps enhanced color font \"Helvetica\" 20\n");
+//      fprintf(fp,"set output \"%s.eps\"\n",file_name.c_str());
+//    }
+//
+//    // set labels and ranges
+//    fprintf(fp,"set size ratio 0.7\n");
+//    fprintf(fp,"set xrange [0:1]\n");
+//    fprintf(fp,"set yrange [0:1]\n");
+//    fprintf(fp,"set xlabel \"Recall\"\n");
+//    if (!is_aos) fprintf(fp,"set ylabel \"Precision\"\n");
+//    else         fprintf(fp,"set ylabel \"Orientation Similarity\"\n");
+//    obj_type[0] = toupper(obj_type[0]);
+//    fprintf(fp,"set title \"%s\"\n",obj_type.c_str());
+//
+//    // line width
+//    int32_t   lw = 5;
+//    if (j==0) lw = 3;
+//
+//    // plot error curve
+//    fprintf(fp,"plot ");
+//    fprintf(fp,"\"%s.txt\" using 1:2 title 'Easy' with lines ls 1 lw %d,",file_name.c_str(),lw);
+//    fprintf(fp,"\"%s.txt\" using 1:3 title 'Moderate' with lines ls 2 lw %d,",file_name.c_str(),lw);
+//    fprintf(fp,"\"%s.txt\" using 1:4 title 'Hard' with lines ls 3 lw %d",file_name.c_str(),lw);
+//
+//    // close file
+//    fclose(fp);
+//
+//    // run gnuplot => create png + eps
+//    sprintf(command,"cd %s; gnuplot %s",dir_name.c_str(),(file_name + ".gp").c_str());
+//    system(command);
   }
 
   // create pdf and crop
@@ -850,6 +850,7 @@ bool eval(string gt_dir, string result_dir, Mail* mail){
   // holds pointers for result files
   FILE *fp_det=0, *fp_ori=0;
 
+  compute_aos = false;
   // eval image 2D bounding boxes
   for (int c = 0; c < NUM_CLASS; c++) {
     CLASSES cls = (CLASSES)c;
@@ -874,7 +875,7 @@ bool eval(string gt_dir, string result_dir, Mail* mail){
   }
 
   // don't evaluate AOS for birdview boxes and 3D boxes
-  compute_aos = false;
+
 
   // eval bird's eye view bounding boxes
 //  for (int c = 0; c < NUM_CLASS; c++) {
