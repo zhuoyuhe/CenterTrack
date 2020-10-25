@@ -63,7 +63,7 @@ class GenericDataset(data.Dataset):
       self.coco = coco.COCO(ann_path)
       self.images = self.coco.getImgIds()
 
-      if opt.tracking:
+      if opt.tracking or opt.dataset == 'kitti_modified':
         if not ('videos' in self.coco.dataset):
           self.fake_video_data()
         print('Creating video index!')
