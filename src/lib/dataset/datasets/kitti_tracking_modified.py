@@ -49,7 +49,7 @@ class KITTITracking_m(GenericDataset):
 
 
   def save_results(self, results, save_dir, tasks):
-    results_dir = os.path.join(save_dir, 'results_kitti_tracking')
+    results_dir = os.path.join(save_dir, 'results_kitti_modified')
     if not os.path.exists(results_dir):
       os.mkdir(results_dir)
     for video in self.coco.dataset['videos']:
