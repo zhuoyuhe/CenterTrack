@@ -202,8 +202,6 @@ class opts(object):
     self.parser.add_argument('--no_color_aug', action='store_true',
                              help='not use the color augmenation '
                                   'from CornerNet')
-    self.parser.add_argument('--test_tracking_form', action='store_true',
-                             help="when test, set dataset to tracking")
 
     # Tracking
     self.parser.add_argument('--tracking', action='store_true')
@@ -292,10 +290,6 @@ class opts(object):
       print('Using tracking threshold for out threshold!', opt.track_thresh)
       if 'ddd' in opt.task:
         opt.show_track_color = True
-
-    if opt.test_tracking_form :
-        print("test tracking")
-        opt.tracking = True
 
     opt.fix_res = not opt.keep_res
     print('Fix size testing.' if opt.fix_res else 'Keep resolution testing.')
