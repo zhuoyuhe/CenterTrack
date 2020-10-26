@@ -129,77 +129,91 @@ FUNCTIONS TO LOAD DETECTION AND GROUND TRUTH DATA ONCE, SAVE RESULTS
 =======================================================================*/
 vector<int32_t> indices;
 
-vector<tDetection> loadDetections(string file_name, bool &compute_aos,
-        vector<bool> &eval_image, vector<bool> &eval_ground,
-        vector<bool> &eval_3d, bool &success) {
+vector<vector<tDetection>> loadDetections(string file_name, bool& compute_aos,
+    vector<bool>& eval_image, vector<bool>& eval_ground,
+    vector<bool>& eval_3d, bool& success) {
 
-  // holds all detections (ignored detections are indicated by an index vector
-  vector<tDetection> detections;
-  FILE *fp = fopen(file_name.c_str(),"r");
-  if (!fp) {
-    success = false;
-    return detections;
-  }
-  while (!feof(fp)) {
-    tDetection d;
-    double trash;
-    char str[255];
-    if (fscanf(fp, "%s %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-                   str, &trash, &trash, &d.box.alpha, &d.box.x1, &d.box.y1,
-                   &d.box.x2, &d.box.y2, &d.h, &d.w, &d.l, &d.t1, &d.t2, &d.t3,
-                   &d.ry, &d.thresh)==16) {
-
-        // d.thresh = 1;
-      d.box.type = str;
-      detections.push_back(d);
-
-      // orientation=-10 is invalid, AOS is not evaluated if at least one orientation is invalid
-      if(d.box.alpha == -10)
-        compute_aos = false;
-
-      // a class is only evaluated if it is detected at least once
-      for (int c = 0; c < NUM_CLASS; c++) {
-        if (!strcasecmp(d.box.type.c_str(), CLASS_NAMES[c].c_str())) {
-          if (!eval_image[c] && d.box.x1 >= 0)
-            eval_image[c] = true;
-          if (!eval_ground[c] && d.t1 != -1000)
-            eval_ground[c] = true;
-          if (!eval_3d[c] && d.t2 != -1000)
-            eval_3d[c] = true;
-          break;
-        }
-      }
+    // holds all detections (ignored detections are indicated by an index vector
+    vector<vector<tDetection>> detections;
+    FILE* fp = fopen(file_name.c_str(), "r");
+    if (!fp) {
+        success = false;
+        return detections;
     }
-  }
-  fclose(fp);
-  success = true;
-  return detections;
+    int fream = 0, useless = 0, fream_old = 0;
+    vector<tDetection> temp;
+    while (!feof(fp)) {
+        tDetection d;
+        double trash;
+        char str[255];
+        if (fscanf(fp, "%ld %ld %s %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+            &fream, &useless, str, &trash, &trash, &d.box.alpha, &d.box.x1, &d.box.y1,
+            &d.box.x2, &d.box.y2, &d.h, &d.w, &d.l, &d.t1, &d.t2, &d.t3,
+            &d.ry, &d.thresh) == 16) {
+            if (fream != fream_old) {
+                detections.push_back(temp);
+                temp.clear();
+                fream_old = fream;
+            }
+            // d.thresh = 1;
+            d.box.type = str;
+            temp.push_back(d);
+
+            // orientation=-10 is invalid, AOS is not evaluated if at least one orientation is invalid
+            if (d.box.alpha == -10)
+                compute_aos = false;
+
+            // a class is only evaluated if it is detected at least once
+            for (int c = 0; c < NUM_CLASS; c++) {
+                if (!strcasecmp(d.box.type.c_str(), CLASS_NAMES[c].c_str())) {
+                    if (!eval_image[c] && d.box.x1 >= 0)
+                        eval_image[c] = true;
+                    if (!eval_ground[c] && d.t1 != -1000)
+                        eval_ground[c] = true;
+                    if (!eval_3d[c] && d.t2 != -1000)
+                        eval_3d[c] = true;
+                    break;
+                }
+            }
+        }
+    }
+    fclose(fp);
+    success = true;
+    return detections;
 }
 
-vector<tGroundtruth> loadGroundtruth(string file_name,bool &success) {
+vector<vector<tGroundtruth>> loadGroundtruth(string file_name, bool& success) {
 
-  // holds all ground truth (ignored ground truth is indicated by an index vector
-  vector<tGroundtruth> groundtruth;
-  FILE *fp = fopen(file_name.c_str(),"r");
-  if (!fp) {
-    success = false;
-    return groundtruth;
-  }
-  while (!feof(fp)) {
-    tGroundtruth g;
-    char str[255];
-    if (fscanf(fp, "%s %lf %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-                   str, &g.truncation, &g.occlusion, &g.box.alpha,
-                   &g.box.x1,   &g.box.y1,     &g.box.x2,    &g.box.y2,
-                   &g.h,      &g.w,        &g.l,       &g.t1,
-                   &g.t2,      &g.t3,        &g.ry )==15) {
-      g.box.type = str;
-      groundtruth.push_back(g);
+    // holds all ground truth (ignored ground truth is indicated by an index vector
+    vector<vector<tGroundtruth>> groundtruth;
+    FILE* fp = fopen(file_name.c_str(), "r");
+    if (!fp) {
+        success = false;
+        return groundtruth;
     }
-  }
-  fclose(fp);
-  success = true;
-  return groundtruth;
+    vector<tGroundtruth> temp;
+    int fream = 0, useless = 0, fream_old = 0;
+    while (!feof(fp)) {
+        tGroundtruth g;
+        char str[255];
+        if (fscanf(fp, "%ld %ld %s %lf %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+            &fream, &useless, str, &g.truncation, &g.occlusion, &g.box.alpha,
+            &g.box.x1, &g.box.y1, &g.box.x2, &g.box.y2,
+            &g.h, &g.w, &g.l, &g.t1,
+            &g.t2, &g.t3, &g.ry) == 17) {
+            if (fream != fream_old) {
+                groundtruth.push_back(temp);
+                temp.clear();
+                fream_old = fream;
+            }
+            g.box.type = str;
+            temp.push_back(g);
+        }
+    }
+    groundtruth.push_back(temp);
+    fclose(fp);
+    success = true;
+    return groundtruth;
 }
 
 void saveStats (const vector<double> &precision, const vector<double> &aos, FILE *fp_det, FILE *fp_ori) {
@@ -829,11 +843,11 @@ bool eval(string gt_dir, string result_dir, Mail* mail){
 
     // read ground truth and result poses
     bool gt_success,det_success;
-    vector<tGroundtruth> gt   = loadGroundtruth(gt_dir + "/" + file_name,gt_success);
-    vector<tDetection>   det  = loadDetections(result_dir + "/"+ file_name,
+    vector<vector<tGroundtruth>> gt = loadGroundtruth(gt_dir + "/" + file_name,gt_success);
+    vector<vector<tDetection>>   det  = loadDetections(result_dir + "/"+ file_name,
             compute_aos, eval_image, eval_ground, eval_3d, det_success);
-    groundtruth.push_back(gt);
-    detections.push_back(det);
+    groundtruth.insert(groundtruth.end(), gt.begin(), gt.end());
+    detections.insert(detections.end(), det.begin(), det.end());
 
     // check for errors
     if (!gt_success) {
