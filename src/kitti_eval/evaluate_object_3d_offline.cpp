@@ -177,6 +177,7 @@ vector<vector<tDetection>> loadDetections(string file_name, bool& compute_aos,
             }
         }
     }
+    detections.push_back(temp);
     fclose(fp);
     success = true;
     return detections;
@@ -638,6 +639,7 @@ bool eval_class (FILE *fp_det, FILE *fp_ori, CLASSES current_class,
         double (*boxoverlap)(tDetection, tGroundtruth, int32_t),
         vector<double> &precision, vector<double> &aos,
         DIFFICULTY difficulty, METRIC metric) {
+    cout << groundtruth.size() << detections.size() << endl;
     assert(groundtruth.size() == detections.size());
 
   // init
@@ -692,7 +694,7 @@ bool eval_class (FILE *fp_det, FILE *fp_ori, CLASSES current_class,
     }
   }
 
-  // compute recall, precision and AOS
+  // compute recall, precision and AOSload
   vector<double> recall;
   precision.assign(N_SAMPLE_PTS, 0);
   if(compute_aos)
@@ -839,6 +841,9 @@ bool eval(string gt_dir, string result_dir, Mail* mail){
 
     // file name
     char file_name[256];
+    if (indices[i] == 7 || indices[i] == 6){
+      continue;
+    }
     sprintf(file_name,"%04d.txt",indices.at(i));
 
     // read ground truth and result poses
@@ -848,6 +853,7 @@ bool eval(string gt_dir, string result_dir, Mail* mail){
             compute_aos, eval_image, eval_ground, eval_3d, det_success);
     groundtruth.insert(groundtruth.end(), gt.begin(), gt.end());
     detections.insert(detections.end(), det.begin(), det.end());
+    cout << gt.size() << '_' << det.size() << endl;
 
     // check for errors
     if (!gt_success) {

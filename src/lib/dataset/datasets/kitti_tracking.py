@@ -88,11 +88,11 @@ class KITTITracking(GenericDataset):
           f.write(' {:.2f} {:.2f} {:.2f} {:.2f}'.format(
             item['bbox'][0], item['bbox'][1], item['bbox'][2], item['bbox'][3]))
           
-          f.write(' {:d} {:d} {:d}'.format(
+          f.write(' {:.2f} {:.2f} {:.2f}'.format(
             int(item['dim'][0]), int(item['dim'][1]), int(item['dim'][2])))
-          f.write(' {:d} {:d} {:d}'.format(
+          f.write(' {:.2f} {:.2f} {:.2f}'.format(
             int(item['loc'][0]), int(item['loc'][1]), int(item['loc'][2])))
-          f.write(' {:d} {:.2f}\n'.format(int(item['rot_y']), item['score']))
+          f.write(' {:.2f} {:.2f}\n'.format(int(item['rot_y']), item['score']))
       f.close()
 
   def run_eval(self, results, save_dir, useless=None):
