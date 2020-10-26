@@ -95,7 +95,7 @@ class KITTITracking(GenericDataset):
           f.write(' {:d} {:.2f}\n'.format(int(item['rot_y']), item['score']))
       f.close()
 
-  def run_eval(self, results, save_dir):
+  def run_eval(self, results, save_dir, useless=None):
     self.save_results(results, save_dir)
     os.system('python tools/eval_kitti_track/evaluate_tracking.py ' + \
               '{}/results_kitti_tracking/ {}'.format(
