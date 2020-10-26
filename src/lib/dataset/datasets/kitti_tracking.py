@@ -84,15 +84,15 @@ class KITTITracking(GenericDataset):
           
           track_id = item['tracking_id'] if 'tracking_id' in item else -1
           f.write('{} {} {} -1 -1'.format(frame_id - 1, track_id, class_name))
-          f.write(' {:d}'.format(int(item['alpha'])))
+          f.write(' {:.2f}'.format(item['alpha']))
           f.write(' {:.2f} {:.2f} {:.2f} {:.2f}'.format(
             item['bbox'][0], item['bbox'][1], item['bbox'][2], item['bbox'][3]))
           
           f.write(' {:.2f} {:.2f} {:.2f}'.format(
-            int(item['dim'][0]), int(item['dim'][1]), int(item['dim'][2])))
+            item['dim'][0], item['dim'][1], item['dim'][2]))
           f.write(' {:.2f} {:.2f} {:.2f}'.format(
-            int(item['loc'][0]), int(item['loc'][1]), int(item['loc'][2])))
-          f.write(' {:.2f} {:.2f}\n'.format(int(item['rot_y']), item['score']))
+            item['loc'][0], item['loc'][1], item['loc'][2]))
+          f.write(' {:.2f} {:.2f}\n'.format(item['rot_y'], item['score']))
       f.close()
 
   def run_eval(self, results, save_dir, useless=None):
