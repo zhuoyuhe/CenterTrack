@@ -149,7 +149,7 @@ vector<vector<tDetection>> loadDetections(string file_name, bool& compute_aos,
         if (fscanf(fp, "%d %d %s %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
             &fream, &useless, str, &trash, &trash, &d.box.alpha, &d.box.x1, &d.box.y1,
             &d.box.x2, &d.box.y2, &d.h, &d.w, &d.l, &d.t1, &d.t2, &d.t3,
-            &d.ry, &d.thresh) == 16) {
+            &d.ry, &d.thresh) == 18) {
             if (fream != fream_old) {
                 detections.push_back(temp);
                 temp.clear();
