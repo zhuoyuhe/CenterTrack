@@ -146,7 +146,7 @@ vector<vector<tDetection>> loadDetections(string file_name, bool& compute_aos,
         tDetection d;
         double trash;
         char str[255];
-        if (fscanf(fp, "%ld %ld %s %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+        if (fscanf(fp, "%d %d %s %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
             &fream, &useless, str, &trash, &trash, &d.box.alpha, &d.box.x1, &d.box.y1,
             &d.box.x2, &d.box.y2, &d.h, &d.w, &d.l, &d.t1, &d.t2, &d.t3,
             &d.ry, &d.thresh) == 16) {
@@ -196,7 +196,7 @@ vector<vector<tGroundtruth>> loadGroundtruth(string file_name, bool& success) {
     while (!feof(fp)) {
         tGroundtruth g;
         char str[255];
-        if (fscanf(fp, "%ld %ld %s %lf %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+        if (fscanf(fp, "%d %d %s %lf %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
             &fream, &useless, str, &g.truncation, &g.occlusion, &g.box.alpha,
             &g.box.x1, &g.box.y1, &g.box.x2, &g.box.y2,
             &g.h, &g.w, &g.l, &g.t1,
@@ -777,7 +777,7 @@ void saveAndPlotPlots(string dir_name,string file_name,string obj_type,vector<do
 //    // run gnuplot => create png + eps
 //    sprintf(command,"cd %s; gnuplot %s",dir_name.c_str(),(file_name + ".gp").c_str());
 //    system(command);
-  }
+  // }
 
   // create pdf and crop
   sprintf(command,"cd %s; ps2pdf %s.eps %s_large.pdf",dir_name.c_str(),file_name.c_str(),file_name.c_str());
@@ -960,5 +960,3 @@ int32_t main (int32_t argc,char *argv[]) {
 
   return 0;
 }
-
-
