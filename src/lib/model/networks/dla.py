@@ -318,7 +318,7 @@ class DLA(nn.Module):
     def load_pretrained_model(self, data='imagenet', name='dla34', hash='ba72cf86'):
         # fc = self.fc
         if name.endswith('.pth'):
-            model_weights = torch.load(data + name)
+            model_weights = torch.load(name)
         else:
             model_url = get_model_url(data, name, hash)
             model_weights = model_zoo.load_url(model_url)
@@ -336,7 +336,7 @@ def dla34(pretrained=True, **kwargs):  # DLA-34
                 block=BasicBlock, **kwargs)
     if pretrained:
         model.load_pretrained_model(
-            data='imagenet', name='dla34', hash='ba72cf86')
+            data='imagenet', name='/mnt/luci-cpfs/luci-hangzhou/xinjing/pretrained_model/centertrack/dla34-ba72cf86.pth', hash='ba72cf86')
     else:
         print('Warning: No ImageNet pretrain!!')
     return model
