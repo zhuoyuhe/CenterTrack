@@ -130,7 +130,7 @@ def prefetch_test(opt):
       json.dump(_to_list(copy.deepcopy(results)),
                 open(opt.save_dir + '/save_results_{}{}.json'.format(
                   opt.test_dataset, opt.dataset_version), 'w'))
-  dataset.run_eval(results, opt.save_dir, opt.task)
+  dataset.run_eval(results, opt.save_dir)
 
 def test(opt):
   os.environ['CUDA_VISIBLE_DEVICES'] = opt.gpus_str
