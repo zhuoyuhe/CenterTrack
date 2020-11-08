@@ -10,7 +10,7 @@ class opts(object):
   def __init__(self):
     self.parser = argparse.ArgumentParser()
     # basic experiment setting
-    self.parser.add_argument('task', default='',
+    self.parser.add_argument('--task', default='',
                              help='ctdet | ddd | multi_pose '
                              '| tracking or combined with ,')
     self.parser.add_argument('--dataset', default='coco',
@@ -83,7 +83,7 @@ class opts(object):
                              help='model architecture. Currently tested'
                                   'res_18 | res_101 | resdcn_18 | resdcn_101 |'
                                   'dlav0_34 | dla_34 | hourglass')
-    self.parser.add_argument('--dla_node', default='dcn') 
+    self.parser.add_argument('--dla_node', default='gcn')
     self.parser.add_argument('--head_conv', type=int, default=-1,
                              help='conv layer channels for output head'
                                   '0 for no conv layer'
@@ -254,7 +254,8 @@ class opts(object):
                              help='dir of dataset')
 
     # optimizer
-    self.parser.add_argument('')
+    self.parser.add_argument('--weight_strategy', type=str, default='', help="DWA | UNCER | GRADNORM")
+    self.parser.add_argument("--dwa_T", type=float, default=2.0)
     # custom dataset
     self.parser.add_argument('--custom_dataset_img_path', default='')
     self.parser.add_argument('--custom_dataset_ann_path', default='')
