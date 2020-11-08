@@ -98,20 +98,22 @@ class LossWithStrategy(GenericLoss):
         self.loss_history = {head: [] for head in opt.heads}
         if self.weight_strategy == "DWA":
             self.K = len(opt.heads)
+            self.T = opt.dwa_T
 
     def update_weight(self, epoch):
         if self.weight_strategy == '':
             return
         elif self.weight_strategy == "DWA":
             if epoch > 2:
-                w_sum = 0
-                w_head = {head: 0 for head in self.opt.heads}
+                lambda_w_sum = 0
+                lambda_w_head = {head: 0 for head in self.opt.heads}
                 for head in self.opt.heads:
                     w = self.loss_history[head][epoch - 2] / self.loss_history[head][epoch - 3]
-                    w_head[head] = w
-                    w_sum += w
+                    lambda_w = np.exp(w / self.T)
+                    lambda_w_head[head] = lambda_w
+                    lambda_w_sum += lambda_w
                 for head in self.opt.heads:
-                    self.weight[head] = self.K * w_head[head] / w_sum
+                    self.weight[head] = self.K * lambda_w_head[head] / lambda_w_sum
 
     def update_loss(self, epoch, loss_ret):
         if self.weight_strategy == '':
