@@ -253,6 +253,8 @@ class opts(object):
     self.parser.add_argument('--data_dir', type=str, default='',
                              help='dir of dataset')
 
+    # optimizer
+    self.parser.add_argument('')
     # custom dataset
     self.parser.add_argument('--custom_dataset_img_path', default='')
     self.parser.add_argument('--custom_dataset_ann_path', default='')
