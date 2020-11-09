@@ -10,7 +10,7 @@ class opts(object):
   def __init__(self):
     self.parser = argparse.ArgumentParser()
     # basic experiment setting
-    self.parser.add_argument('--task', default='tracking,ddd',
+    self.parser.add_argument('task', default='',
                              help='ctdet | ddd | multi_pose '
                              '| tracking or combined with ,')
     self.parser.add_argument('--dataset', default='kitti_tracking',
@@ -122,7 +122,7 @@ class opts(object):
                              help='when to save the model to disk.')
     self.parser.add_argument('--num_epochs', type=int, default=70,
                              help='total training epochs.')
-    self.parser.add_argument('--batch_size', type=int, default=2,
+    self.parser.add_argument('--batch_size', type=int, default=32,
                              help='batch size')
     self.parser.add_argument('--master_batch_size', type=int, default=-1,
                              help='batch size on the master gpu.')
@@ -254,16 +254,19 @@ class opts(object):
                              help='dir of dataset')
 
     # optimizer
-    self.parser.add_argument('--weight_strategy', type=str, default='UNCER', help="DWA | UNCER | "
-                                                                                "GRADNORM")
+    self.parser.add_argument('--weight_strategy', type=str, default='GRADNORM', help=" |DWA | UNCER | "
+                                                                                "GRADNORM | UNIFORM")
+    self.parser.add_argument("--weight_optim_lr", type=float, default=1.25e-4)
+    self.parser.add_argument("--weight_optim", type=str, default='adam', help="adam | sgd")
 
     # DWA params
     self.parser.add_argument("--dwa_T", type=float, default=2.0)
 
-    # UNCER params
+    # uncertainty params
     self.parser.add_argument("--uncer_mode", type=str, default='BASIC', help="BASIC | IMPROVED")
-    self.parser.add_argument("--uncer_optim", type=str, default='adam', help="adam | sgd")
-    self.parser.add_argument("--uncer_lr", type=float, default=1.25e-3)
+
+    # GradNorm params
+    self.parser.add_argument("--gradnorm_alpha", type=float, default=1.0)
 
     # custom dataset
     self.parser.add_argument('--custom_dataset_img_path', default='')
