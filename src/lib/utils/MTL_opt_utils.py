@@ -76,14 +76,14 @@ class GradNormWeightLoss(nn.Module):
         loss_optimizer.zero_grad()
 
         loss_grad = sum(self.loss_func(g_dict[head], tar_dict[head]) for head in self.head_idx)
-        print(loss_grad)
+        # print(loss_grad)
         loss_grad.backward()
         loss_optimizer.step()
 
         weight_total = sum(self.weight[i] for i in range(self.num))
-        print(self.weight.grad)
+        # print(self.weight.grad)
         torch.div(self.weight, weight_total)
-        print(self.weight)
+        # print(self.weight)
         return
 
 
