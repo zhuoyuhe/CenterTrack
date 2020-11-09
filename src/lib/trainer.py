@@ -16,6 +16,7 @@ from model.decode import generic_decode
 from model.utils import _sigmoid, flip_tensor, flip_lr_off, flip_lr
 from utils.debugger import Debugger
 from utils.post_process import generic_post_process
+from utils.MTL_opt_utils import UncertaintyWeightLoss, get_loss_optimizer
 
 
 class GenericLoss(torch.nn.Module):
@@ -93,15 +94,19 @@ class LossWithStrategy(GenericLoss):
         self.weight_strategy = opt.weight_strategy
         if self.weight_strategy == '':
             self.weight = {head: opt.weights[head] for head in opt.heads}
-        else:
+        elif self.weight_strategy == 'DWA':
             self.weight = {head: 1 for head in opt.heads}
-        self.loss_history = {head: [] for head in opt.heads}
-        if self.weight_strategy == "DWA":
+            self.loss_history = {head: [] for head in opt.heads}
             self.K = len(opt.heads)
             self.T = opt.dwa_T
 
+        elif self.weight_strategy == 'UNCER':
+            self.head_idx = {head: i for i, head in enumerate(opt.heads)}
+            self.loss_model = UncertaintyWeightLoss(self.head_idx, opt.uncer_mode)
+            self.optimizer = get_loss_optimizer(model=self.loss_model, opt=opt)
+
     def update_weight(self, epoch):
-        if self.weight_strategy == '':
+        if self.weight_strategy == '' or self.weight_strategy == 'UNIFORM':
             return
         elif self.weight_strategy == "DWA":
             if epoch > 2:
@@ -116,10 +121,9 @@ class LossWithStrategy(GenericLoss):
                     self.weight[head] = self.K * lambda_w_head[head] / lambda_w_sum
 
     def update_loss(self, epoch, loss_ret):
-        if self.weight_strategy == '':
-            return
-        for head in self.opt.heads:
-            self.loss_history[head].append(loss_ret[head])
+        if self.weight_strategy == 'DWA':
+            for head in self.opt.heads:
+                self.loss_history[head].append(loss_ret[head])
 
     def forward(self, outputs, batch):
         opt = self.opt
@@ -164,8 +168,11 @@ class LossWithStrategy(GenericLoss):
                     batch['ind'], batch['nuscenes_att']) / opt.num_stacks
 
         losses['tot'] = 0
-        for head in opt.heads:
-            losses['tot'] += self.weights[head] * losses[head]
+        if self.weight_strategy == 'UNCER':
+            losses['tot'] = self.loss_model(losses)
+        else:
+            for head in opt.heads:
+                losses['tot'] += self.weight[head] * losses[head]
 
         return losses['tot'], losses
 
@@ -225,7 +232,7 @@ class Trainer(object):
         bar = Bar('{}/{}'.format(opt.task, opt.exp_id), max=num_iters)
         end = time.time()
         for iter_id, batch in enumerate(data_loader):
-            if iter_id >= num_iters:
+            if iter_id >=  num_iters: 
                 break
             data_time.update(time.time() - end)
 
@@ -238,6 +245,10 @@ class Trainer(object):
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
+                if opt.weight_strategy == 'UNCER':
+                    self.model_with_loss.loss.optimizer.step()
+                    self.model_with_loss.loss.optimizer.zero_grad()
+                    print(self.model_with_loss.loss.loss_model.log_sigma)
             batch_time.update(time.time() - end)
             end = time.time()
 

@@ -10,10 +10,10 @@ class opts(object):
   def __init__(self):
     self.parser = argparse.ArgumentParser()
     # basic experiment setting
-    self.parser.add_argument('--task', default='',
+    self.parser.add_argument('--task', default='tracking,ddd',
                              help='ctdet | ddd | multi_pose '
                              '| tracking or combined with ,')
-    self.parser.add_argument('--dataset', default='coco',
+    self.parser.add_argument('--dataset', default='kitti_tracking',
                              help='see lib/dataset/dataset_facotry for ' + 
                             'available datasets')
     self.parser.add_argument('--test_dataset', default='',
@@ -39,9 +39,9 @@ class opts(object):
                                   'in the exp dir if load_model is empty.') 
 
     # system
-    self.parser.add_argument('--gpus', default='0', 
+    self.parser.add_argument('--gpus', default='-1',
                              help='-1 for CPU, use comma for multiple gpus')
-    self.parser.add_argument('--num_workers', type=int, default=4,
+    self.parser.add_argument('--num_workers', type=int, default=0,
                              help='dataloader threads. 0 for single-thread.')
     self.parser.add_argument('--not_cuda_benchmark', action='store_true',
                              help='disable when the input size is not fixed.')
@@ -122,7 +122,7 @@ class opts(object):
                              help='when to save the model to disk.')
     self.parser.add_argument('--num_epochs', type=int, default=70,
                              help='total training epochs.')
-    self.parser.add_argument('--batch_size', type=int, default=32,
+    self.parser.add_argument('--batch_size', type=int, default=2,
                              help='batch size')
     self.parser.add_argument('--master_batch_size', type=int, default=-1,
                              help='batch size on the master gpu.')
@@ -250,12 +250,21 @@ class opts(object):
     self.parser.add_argument('--nuscenes_att_weight', type=float, default=1)
     self.parser.add_argument('--velocity', action='store_true')
     self.parser.add_argument('--velocity_weight', type=float, default=1)
-    self.parser.add_argument('--data_dir', type=str, default='',
+    self.parser.add_argument('--data_dir', type=str, default='/home/zhuoyu/Documents/inciepo/CenterTrack/data',
                              help='dir of dataset')
 
     # optimizer
-    self.parser.add_argument('--weight_strategy', type=str, default='', help="DWA | UNCER | GRADNORM")
+    self.parser.add_argument('--weight_strategy', type=str, default='UNCER', help="DWA | UNCER | "
+                                                                                "GRADNORM")
+
+    # DWA params
     self.parser.add_argument("--dwa_T", type=float, default=2.0)
+
+    # UNCER params
+    self.parser.add_argument("--uncer_mode", type=str, default='BASIC', help="BASIC | IMPROVED")
+    self.parser.add_argument("--uncer_optim", type=str, default='adam', help="adam | sgd")
+    self.parser.add_argument("--uncer_lr", type=float, default=1.25e-3)
+
     # custom dataset
     self.parser.add_argument('--custom_dataset_img_path', default='')
     self.parser.add_argument('--custom_dataset_ann_path', default='')

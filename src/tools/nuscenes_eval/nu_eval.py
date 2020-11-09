@@ -40,7 +40,7 @@ if __name__ == '__main__':
     det = convert_eval_format(result)
     json.dump(det,
               open('{}nu_3d_det/results_coco.json'.format(path), 'w'))
-    coco_dets = coco.loadRes(path + 'nu_3d_det/results_coco.json')
+    coco_dets = coco.loadRes(path + 'nu_2d_track/results_coco.json')
     coco_eval = COCOeval(coco, coco_dets, "bbox")
     coco_eval.evaluate()
     coco_eval.accumulate()
