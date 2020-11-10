@@ -88,6 +88,7 @@ def prefetch_test(opt):
         results[img_id] = load_results['{}'.format(img_id)]
       num_iters = 0
     for ind, (img_id, pre_processed_images) in enumerate(data_loader):
+      # print(pre_processed_images)
       if ind >= num_iters:
         break
       if opt.tracking and ('is_first_frame' in pre_processed_images):
