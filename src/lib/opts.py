@@ -13,7 +13,7 @@ class opts(object):
     self.parser.add_argument('task', default='',
                              help='ctdet | ddd | multi_pose '
                              '| tracking or combined with ,')
-    self.parser.add_argument('--dataset', default='kitti_tracking',
+    self.parser.add_argument('--dataset', default='coco',
                              help='see lib/dataset/dataset_facotry for ' + 
                             'available datasets')
     self.parser.add_argument('--test_dataset', default='',
@@ -39,7 +39,7 @@ class opts(object):
                                   'in the exp dir if load_model is empty.') 
 
     # system
-    self.parser.add_argument('--gpus', default='-1',
+    self.parser.add_argument('--gpus', default='0',
                              help='-1 for CPU, use comma for multiple gpus')
     self.parser.add_argument('--num_workers', type=int, default=0,
                              help='dataloader threads. 0 for single-thread.')
@@ -83,7 +83,7 @@ class opts(object):
                              help='model architecture. Currently tested'
                                   'res_18 | res_101 | resdcn_18 | resdcn_101 |'
                                   'dlav0_34 | dla_34 | hourglass')
-    self.parser.add_argument('--dla_node', default='gcn')
+    self.parser.add_argument('--dla_node', default='dcn')
     self.parser.add_argument('--head_conv', type=int, default=-1,
                              help='conv layer channels for output head'
                                   '0 for no conv layer'
@@ -254,7 +254,7 @@ class opts(object):
                              help='dir of dataset')
 
     # optimizer
-    self.parser.add_argument('--weight_strategy', type=str, default='GRADNORM', help=" |DWA | UNCER | "
+    self.parser.add_argument('--weight_strategy', type=str, default='', help=" |DWA | UNCER | "
                                                                                 "GRADNORM | UNIFORM")
     self.parser.add_argument("--weight_optim_lr", type=float, default=1.25e-4)
     self.parser.add_argument("--weight_optim", type=str, default='adam', help="adam | sgd")
