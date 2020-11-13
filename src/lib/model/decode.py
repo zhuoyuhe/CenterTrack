@@ -178,5 +178,8 @@ def generic_decode(output, K=100, opt=None):
 
     ret['pre_cts'] = torch.cat(
       [pre_xs.unsqueeze(2), pre_ys.unsqueeze(2)], dim=2)
+
+  if 'traffic_light' in output:
+    ret['traffic_light'] = torch.argmax(output['traffic_light'])
   
   return ret

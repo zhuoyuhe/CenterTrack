@@ -16,7 +16,7 @@ from utils.ddd_utils import compute_box_3d, project_to_image
 
 class GuideDog(GenericDataset):
     num_categories = 4
-    default_resolution = [384, 1280]
+    default_resolution = [800, 800]
     class_name = ['Pedestrian', 'Static_obstacles', 'Traffic_light', 'DontCare']
     # negative id is for "not as negative sample for abs(id)".
     # 0 for ignore losses for all categories in the bounding box region
@@ -24,7 +24,10 @@ class GuideDog(GenericDataset):
     #       'Tram', 'Misc', 'DontCare']
     cat_ids = {1: 1, 2: 2, 3: 3, 0: 0}
     max_objs = 50
-
+    mean = np.array([0.258823, 0.266666, 0.2745089],
+                    dtype=np.float32).reshape(1, 1, 3)
+    std = np.array([0.22745098, 0.22745098, 0.22745098],
+                   dtype=np.float32).reshape(1, 1, 3)
     def __init__(self, opt, split):
         data_dir = os.path.join(opt.data_dir, 'kitti_tracking')
         split_ = 'train' if opt.dataset_version != 'test' else 'test'  # 'test'

@@ -26,8 +26,10 @@ def forward(opt):
     frame_id = 1
     time_stats = ['tot', 'load', 'pre', 'net', 'dec', 'post']
     avg_time_stats = {t: AverageMeter() for t in time_stats}
+    t1 = time.time()
     for i in range(10):
-        img_path = "C:/Users/zhuoyuhe/Desktop/CIS-700/CenterTrack/data/kitti_tracking/data_tracking_image_2/training/image_02/0000/00000{}.png".format(i)
+        img_path = "/home/zhuoyu/Documents/CIS-700/Guidedog/catkin_ws/src/generate_data/data/label/my_image{}.png".format(i)
+        # img_path = "/home/zhuoyu/Documents/inciepo/CenterTrack/data/kitti_tracking/data_tracking_image_2/training/image_02/0000/00000{}.png".format(i)
         input_meta = {}
         input_meta['calib'] = CAMERA_CALIB
         if (opt.tracking and frame_id == 1):
@@ -43,7 +45,8 @@ def forward(opt):
         print(t, avg_time_stats[t].avg)
     a = 1
     b = 2
-
+    t2 = time.time()
+    print(t2-t1)
 def _to_list(results):
     for img_id in results:
         for t in range(len(results[img_id])):
