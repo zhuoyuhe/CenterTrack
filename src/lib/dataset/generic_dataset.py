@@ -76,7 +76,6 @@ class GenericDataset(data.Dataset):
   def __getitem__(self, index):
     opt = self.opt
     img, anns, img_info, img_path = self._load_data(index)
-
     height, width = img.shape[0], img.shape[1]
     c = np.array([img.shape[1] / 2., img.shape[0] / 2.], dtype=np.float32)
     s = max(img.shape[0], img.shape[1]) * 1.0 if not self.opt.not_max_crop \
@@ -127,7 +126,8 @@ class GenericDataset(data.Dataset):
     ### init samples
     self._init_ret(ret, gt_det)
     calib = self._get_calib(img_info, width, height)
-    
+    if 'traffic_light' in self.opt.heads:
+      ret['traffic_light'][0] = anns[0]['traffic_light']
     num_objs = min(len(anns), self.max_objs)
     for k in range(num_objs):
       ann = anns[k]
@@ -367,6 +367,9 @@ class GenericDataset(data.Dataset):
       ret['rotres'] = np.zeros((max_objs, 2), dtype=np.float32)
       ret['rot_mask'] = np.zeros((max_objs), dtype=np.float32)
       gt_det.update({'rot': []})
+
+    if 'traffic_light' in self.opt.heads:
+      ret['traffic_light'] = torch.zeros(1).type(torch.long)
 
 
   def _get_calib(self, img_info, width, height):

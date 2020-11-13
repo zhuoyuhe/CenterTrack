@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import time
 import torch
+import torch.nn as nn
 import numpy as np
 from progress.bar import Bar
 
@@ -26,6 +27,8 @@ class GenericLoss(torch.nn.Module):
       self.crit_rot = BinRotLoss()
     if 'nuscenes_att' in opt.heads:
       self.crit_nuscenes_att = WeightedBCELoss()
+    if 'traffic_light' in opt.heads:
+      self.light_loss = nn.CrossEntropyLoss()
     self.opt = opt
 
   def _sigmoid_output(self, output):
@@ -79,6 +82,9 @@ class GenericLoss(torch.nn.Module):
           output['nuscenes_att'], batch['nuscenes_att_mask'],
           batch['ind'], batch['nuscenes_att']) / opt.num_stacks
 
+      if 'traffic_light' in output:
+        losses['traffic_light'] += self.light_loss(output['traffic_light'], batch['traffic_light'].view(-1))
+        # pass
     losses['tot'] = 0
     for head in opt.heads:
       losses['tot'] += opt.weights[head] * losses[head]

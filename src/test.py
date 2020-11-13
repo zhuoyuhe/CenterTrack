@@ -161,7 +161,7 @@ def test(opt):
       input_meta['calib'] = img_info['calib']
     if (opt.tracking and ('frame_id' in img_info) and img_info['frame_id'] == 1):
       detector.reset_tracking()
-      input_meta['pre_dets'] = load_results[img_id]
+      # input_meta['pre_dets'] = load_results[img_id]
 
     ret = detector.run(img_path, input_meta)    
     results[img_id] = ret['results']

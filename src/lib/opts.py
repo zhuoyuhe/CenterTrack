@@ -10,7 +10,7 @@ class opts(object):
   def __init__(self):
     self.parser = argparse.ArgumentParser()
     # basic experiment setting
-    self.parser.add_argument('--task', default='tracking,ddd',
+    self.parser.add_argument('--task', default='tracking,ddd,traffic_light',
                              help='ctdet | ddd | multi_pose '
                              '| tracking or combined with ,')
     self.parser.add_argument('--dataset', default='kitti_tracking',
@@ -30,7 +30,7 @@ class opts(object):
     self.parser.add_argument('--demo', default='', 
                              help='path to image/ image folders/ video. '
                                   'or "webcam"')
-    self.parser.add_argument('--load_model', default='/home/zhuoyu/Documents/inciepo/CenterTrack/model/model_last.pth',
+    self.parser.add_argument('--load_model', default='C:/Users/zhuoyuhe/Desktop/CIS-700/CenterTrack/model/model_last.pth',
                              help='path to pretrained model')
     self.parser.add_argument('--resume', action='store_true',
                              help='resume an experiment. '
@@ -39,7 +39,7 @@ class opts(object):
                                   'in the exp dir if load_model is empty.') 
 
     # system
-    self.parser.add_argument('--gpus', default='0',
+    self.parser.add_argument('--gpus', default='-1',
                              help='-1 for CPU, use comma for multiple gpus')
     self.parser.add_argument('--num_workers', type=int, default=1,
                              help='dataloader threads. 0 for single-thread.')
@@ -122,7 +122,7 @@ class opts(object):
                              help='when to save the model to disk.')
     self.parser.add_argument('--num_epochs', type=int, default=70,
                              help='total training epochs.')
-    self.parser.add_argument('--batch_size', type=int, default=32,
+    self.parser.add_argument('--batch_size', type=int, default=2,
                              help='batch size')
     self.parser.add_argument('--master_batch_size', type=int, default=-1,
                              help='batch size on the master gpu.')
@@ -152,7 +152,7 @@ class opts(object):
                              help='run nms in testing.')
     self.parser.add_argument('--K', type=int, default=100,
                              help='max number of output objects.') 
-    self.parser.add_argument('--not_prefetch_test', action='store_true',
+    self.parser.add_argument('--not_prefetch_test', action='store_true', default=True,
                              help='not use parallal data pre-processing.')
     self.parser.add_argument('--fix_short', type=int, default=-1)
     self.parser.add_argument('--keep_res', action='store_true',
@@ -250,13 +250,19 @@ class opts(object):
     self.parser.add_argument('--nuscenes_att_weight', type=float, default=1)
     self.parser.add_argument('--velocity', action='store_true')
     self.parser.add_argument('--velocity_weight', type=float, default=1)
-    self.parser.add_argument('--data_dir', type=str, default='/home/zhuoyu/Documents/inciepo/CenterTrack/data',
+    self.parser.add_argument('--data_dir', type=str, default='C:/Users/zhuoyuhe/Desktop/CIS-700/CenterTrack/data',
                              help='dir of dataset')
+
 
     # custom dataset
     self.parser.add_argument('--custom_dataset_img_path', default='')
     self.parser.add_argument('--custom_dataset_ann_path', default='')
 
+    # traffic_light
+    self.parser.add_argument('--light_weight', type=float, default=1,
+                             help='loss weight for traffic_light Classification.')
+    self.parser.add_argument('--light_flatten_num', type=int, default=1966080,
+                             help='loss weight for traffic_light Classification.')
   def parse(self, args=''):
     if args == '':
       opt = self.parser.parse_args()
@@ -356,6 +362,8 @@ class opts(object):
         'hps': dataset.num_joints * 2, 'hm_hp': dataset.num_joints,
         'hp_offset': 2})
 
+    if 'traffic_light' in opt.task:
+        opt.heads.update({'traffic_light': 2})
     if opt.ltrb:
       opt.heads.update({'ltrb': 4})
     if opt.ltrb_amodal:
@@ -375,7 +383,9 @@ class opts(object):
                    'tracking': opt.tracking_weight,
                    'ltrb_amodal': opt.ltrb_amodal_weight,
                    'nuscenes_att': opt.nuscenes_att_weight,
-                   'velocity': opt.velocity_weight}
+                   'velocity': opt.velocity_weight,
+                   'traffic_light': opt.light_weight}
+
     opt.weights = {head: weight_dict[head] for head in opt.heads}
     for head in opt.weights:
       if opt.weights[head] == 0:

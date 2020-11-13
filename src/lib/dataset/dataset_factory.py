@@ -17,6 +17,7 @@ from .datasets.crowdhuman import CrowdHuman
 from .datasets.kitti_tracking import KITTITracking
 from .datasets.custom_dataset import CustomDataset
 from .datasets.kitti_tracking_modified import KITTITracking_m
+from .datasets.guidedog_dataset import GuideDog
 
 dataset_factory = {
   'custom': CustomDataset,
@@ -27,7 +28,7 @@ dataset_factory = {
   'nuscenes': nuScenes,
   'crowdhuman': CrowdHuman,
   'kitti_tracking': KITTITracking,
-  'kitti_modified': KITTITracking_m
+  'guide_dog': GuideDog
 }
 
 

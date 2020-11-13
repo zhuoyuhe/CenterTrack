@@ -136,7 +136,7 @@ class Detector(object):
 
     # merge multi-scale testing results
     results = self.merge_outputs(detections)
-    torch.cuda.synchronize()
+    # torch.cuda.synchronize()
     end_time = time.time()
     merge_time += end_time - post_process_time
     
@@ -335,17 +335,17 @@ class Detector(object):
   def process(self, images, pre_images=None, pre_hms=None,
     pre_inds=None, return_time=False):
     with torch.no_grad():
-      torch.cuda.synchronize()
+      # torch.cuda.synchronize()
       output = self.model(images, pre_images, pre_hms)[-1]
       output = self._sigmoid_output(output)
       output.update({'pre_inds': pre_inds})
       if self.opt.flip_test:
         output = self._flip_output(output)
-      torch.cuda.synchronize()
+      # torch.cuda.synchronize()
       forward_time = time.time()
       
       dets = generic_decode(output, K=self.opt.K, opt=self.opt)
-      torch.cuda.synchronize()
+      # torch.cuda.synchronize()
       for k in dets:
         dets[k] = dets[k].detach().cpu().numpy()
     if return_time:
