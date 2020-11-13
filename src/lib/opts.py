@@ -250,7 +250,7 @@ class opts(object):
     self.parser.add_argument('--nuscenes_att_weight', type=float, default=1)
     self.parser.add_argument('--velocity', action='store_true')
     self.parser.add_argument('--velocity_weight', type=float, default=1)
-    self.parser.add_argument('--data_dir', type=str, default='/home/zhuoyu/Documents/inciepo/CenterTrack/data',
+    self.parser.add_argument('--data_dir', type=str, default='C:/Users/zhuoyuhe/Desktop/CIS-700/CenterTrack/data',
                              help='dir of dataset')
 
     # optimizer
@@ -258,6 +258,7 @@ class opts(object):
                                                                                 "GRADNORM | UNIFORM")
     self.parser.add_argument("--weight_optim_lr", type=float, default=1.25e-4)
     self.parser.add_argument("--weight_optim", type=str, default='adam', help="adam | sgd")
+    self.parser.add_argument("--weight_grouping", action='store_true')
 
     # DWA params
     self.parser.add_argument("--dwa_T", type=float, default=2.0)
@@ -392,6 +393,17 @@ class opts(object):
                    'nuscenes_att': opt.nuscenes_att_weight,
                    'velocity': opt.velocity_weight}
     opt.weights = {head: weight_dict[head] for head in opt.heads}
+
+    if opt.weight_grouping:
+        opt.groups={'det' : ['hm', 'reg', 'wh']}
+        if 'ddd' in opt.task:
+            opt.groups['ddd'] = ['dep', 'rot', 'dim', 'amodel_offset']
+        if 'tracking' in opt.task:
+            opt.groups['tracking'] = ['tracking']
+    else:
+        opt.groups = {head : [head] for head in opt.heads}
+    opt.group_weight = {group: 1 for group in opt.heads}
+
     for head in opt.weights:
       if opt.weights[head] == 0:
         del opt.heads[head]

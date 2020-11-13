@@ -94,37 +94,46 @@ class LossWithStrategy(GenericLoss):
         self.weight_strategy = opt.weight_strategy
         if self.weight_strategy == '':
             self.weight = {head: opt.weights[head] for head in opt.heads}
-        elif self.weight_strategy == 'DWA':
+        else:
             self.weight = {head: 1 for head in opt.heads}
-            self.loss_history = {head: [] for head in opt.heads}
-            self.K = len(opt.heads)
+
+        self.groups = opt.groups
+        if self.weight_strategy == 'DWA':
+            self.group_weight = opt.group_weight
+            self.loss_history = {group: [] for group in self.groups}
+            self.K = len(self.groups)
             self.T = opt.dwa_T
         elif self.weight_strategy == 'UNCER':
-            self.head_idx = {head: i for i, head in enumerate(opt.heads)}
-            self.loss_model = UncertaintyWeightLoss(self.head_idx, opt.uncer_mode)
+            self.group_idx = {group: i for i, group in enumerate(self.groups)}
+            self.loss_model = UncertaintyWeightLoss(self.group_idx, self.groups, opt.uncer_mode)
             self.optimizer = get_loss_optimizer(model=self.loss_model, opt=opt)
         elif self.weight_strategy == 'GRADNORM':
-            self.head_idx = {head: i for i, head in enumerate(opt.heads)}
-            self.loss_model = GradNormWeightLoss(self.head_idx, opt.gradnorm_alpha)
+            self.group_idx = {group: i for i, group in enumerate(self.groups)}
+            self.loss_model = GradNormWeightLoss(self.group_idx, self.groups, opt.gradnorm_alpha)
             self.optimizer = get_loss_optimizer(model=self.loss_model, opt=opt)
 
     def update_weight(self, epoch):
         if self.weight_strategy == "DWA":
             if epoch > 2:
                 lambda_w_sum = 0
-                lambda_w_head = {head: 0 for head in self.opt.heads}
-                for head in self.opt.heads:
-                    w = self.loss_history[head][epoch - 2] / self.loss_history[head][epoch - 3]
+                lambda_w_group = {group: 0 for group in self.groups}
+                for group in self.groups:
+                    w = self.loss_history[group][epoch - 2] / self.loss_history[group][epoch - 3]
                     lambda_w = np.exp(w / self.T)
-                    lambda_w_head[head] = lambda_w
+                    lambda_w_group[group] = lambda_w
                     lambda_w_sum += lambda_w
-                for head in self.opt.heads:
-                    self.weight[head] = self.K * lambda_w_head[head] / lambda_w_sum
+                for group in self.groups:
+                    self.group_weight[group] = self.K * lambda_w_group[group] / lambda_w_sum
+                    for head in self.groups[group]:
+                        self.weight[head] = self.group_weight[group]
 
     def update_loss(self, epoch, loss_ret):
         if self.weight_strategy == 'DWA':
-            for head in self.opt.heads:
-                self.loss_history[head].append(loss_ret[head])
+            for group in self.groups:
+                group_loss = 0
+                for head in self.groups[group]:
+                    group_loss += loss_ret[head]
+                self.loss_history[group].append(group_loss)
 
     def forward(self, outputs, batch):
         opt = self.opt
