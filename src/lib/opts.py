@@ -256,6 +256,7 @@ class opts(object):
     # custom dataset
     self.parser.add_argument('--custom_dataset_img_path', default='')
     self.parser.add_argument('--custom_dataset_ann_path', default='')
+    self.parser.add_argument('--exp_subid', type=str, default='')
 
   def parse(self, args=''):
     if args == '':
@@ -321,7 +322,7 @@ class opts(object):
     opt.root_dir = os.path.join(os.path.dirname(__file__), '..', '..')
     #opt.data_dir = os.path.join(opt.root_dir, 'data')
     opt.exp_dir = os.path.join(opt.root_dir, 'exp', opt.task)
-    opt.save_dir = os.path.join(opt.exp_dir, opt.exp_id)
+    opt.save_dir = os.path.join(opt.exp_dir, opt.exp_id, opt.exp_subid)
     opt.debug_dir = os.path.join(opt.save_dir, 'debug')
     
     if opt.resume and opt.load_model == '':
