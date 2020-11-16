@@ -44,7 +44,7 @@ class nuScenes(GenericDataset):
     split_name = split_names[split]
     data_dir = os.path.join(opt.data_dir, 'nuscenes')
     img_dir = os.path.join(
-      data_dir, 'v1.0-mini' if split_name  == 'mini' else 'v1.0-trainval')
+      data_dir, 'v1.0-mini' if split_name  == 'mini' else '')
     print('Dataset version', opt.dataset_version)
     if opt.dataset_version == 'test':
       ann_path = os.path.join(data_dir, 
