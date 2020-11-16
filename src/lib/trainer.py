@@ -224,7 +224,10 @@ class Trainer(object):
 
     def run_epoch(self, phase, epoch, data_loader):
         model_with_loss = self.model_with_loss
-        model_with_loss.loss.update_weight(epoch)
+        if len(self.opt.gpus) > 1:
+            model_with_loss.module.loss.update_weight(epoch)
+        else:
+            model_with_loss.loss.update_weight(epoch)
         if phase == 'train':
             model_with_loss.train()
         else:
@@ -255,13 +258,21 @@ class Trainer(object):
                 self.optimizer.zero_grad()
                 if opt.weight_strategy == 'GRADNORM':
                     loss.backward(retain_graph=True)
-                    model_with_loss.loss.loss_model.update_weight(model_with_loss.model, model_with_loss.loss.optimizer, loss_stats)
+                    if len(self.opt.gpus) > 1:
+                        model_with_loss.module.loss.loss_model.update_weight(model_with_loss.model, model_with_loss.loss.optimizer, loss_stats)
+                    else:
+                        model_with_loss.loss.loss_model.update_weight(model_with_loss.model,
+                                                                      model_with_loss.loss.optimizer, loss_stats)
                 else:
                     loss.backward()
                 self.optimizer.step()
                 if opt.weight_strategy == 'UNCER':
-                    model_with_loss.loss.optimizer.step()
-                    model_with_loss.loss.optimizer.zero_grad()
+                    if len(self.opt.gpus) > 1:
+                        model_with_loss.module.loss.optimizer.step()
+                        model_with_loss.module.loss.optimizer.zero_grad()
+                    else:
+                        model_with_loss.loss.optimizer.step()
+                        model_with_loss.loss.optimizer.zero_grad()
                     print(self.model_with_loss.loss.loss_model.log_sigma)
             batch_time.update(time.time() - end)
             end = time.time()
@@ -289,8 +300,10 @@ class Trainer(object):
         bar.finish()
         ret = {k: v.avg for k, v in avg_loss_stats.items()}
         ret['time'] = bar.elapsed_td.total_seconds() / 60.
-
-        self.model_with_loss.loss.update_loss(epoch, ret)
+        if len(self.opt.gpus) > 1:
+            model_with_loss.module.loss.update_loss(epoch, ret)
+        else:
+            model_with_loss.module.loss.update_loss(epoch, ret)
         return ret, results
 
     def _get_losses(self, opt):
