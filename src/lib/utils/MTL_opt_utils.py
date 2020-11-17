@@ -24,7 +24,7 @@ class UncertaintyWeightLoss(nn.Module):
             else:
                 loss_total += 1 / (2 * torch.exp(2 * self.log_sigma[idx])) * group_loss + torch.log(
                     torch.exp(2 * self.log_sigma[idx]) + 1)
-        return loss_total
+        return loss_total, self.log_sigma
 
 
 class GradNormWeightLoss(nn.Module):
@@ -51,7 +51,7 @@ class GradNormWeightLoss(nn.Module):
             self.weighted_loss[group] = self.weight[idx] * group_loss
             loss_total += self.weighted_loss[group]
 
-        return loss_total
+        return loss_total, self.weight
 
     def update_weight(self, MTL_model, loss_optimizer, loss_dict):
         if len(self.loss_0) == 0:

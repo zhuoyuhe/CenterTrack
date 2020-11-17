@@ -89,17 +89,17 @@ class GenericLoss(torch.nn.Module):
 
 
 class LossWithStrategy(GenericLoss):
-    def __init__(self, opt):
+    def __init__(self, opt, logger):
         super(LossWithStrategy, self).__init__(opt)
         self.weight_strategy = opt.weight_strategy
         if self.weight_strategy == '':
             self.weight = {head: opt.weights[head] for head in opt.heads}
         else:
             self.weight = {head: 1 for head in opt.heads}
-
+        self.logger = logger
         self.groups = opt.groups
+        self.group_weight = opt.group_weight
         if self.weight_strategy == 'DWA':
-            self.group_weight = opt.group_weight
             self.loss_history = {group: [] for group in self.groups}
             self.K = len(self.groups)
             self.T = opt.dwa_T
@@ -126,6 +126,9 @@ class LossWithStrategy(GenericLoss):
                     self.group_weight[group] = self.K * lambda_w_group[group] / lambda_w_sum
                     for head in self.groups[group]:
                         self.weight[head] = self.group_weight[group]
+        for group in self.group_weight:
+            self.logger.write('{} {:8f} | '.format(group, self.group_weight[group]))
+        self.logger.write('\n')
 
     def update_loss(self, epoch, loss_ret):
         if self.weight_strategy == 'DWA':
@@ -179,7 +182,9 @@ class LossWithStrategy(GenericLoss):
 
         losses['tot'] = 0
         if self.weight_strategy in ['UNCER', 'GRADNORM']:
-            losses['tot'] = self.loss_model(losses)
+            losses['tot'], updated_weight = self.loss_model(losses)
+            for group in self.group_weight:
+                self.group_weight[group] = updated_weight[self.group_idx[group]]
         else:
             for head in opt.heads:
                 losses['tot'] += self.weight[head] * losses[head]
@@ -203,10 +208,10 @@ class ModleWithLoss(torch.nn.Module):
 
 class Trainer(object):
     def __init__(
-            self, opt, model, optimizer=None):
+            self, opt, model, optimizer=None, logger=None):
         self.opt = opt
         self.optimizer = optimizer
-        self.loss_stats, self.loss = self._get_losses(opt)
+        self.loss_stats, self.loss = self._get_losses(opt, logger)
         self.model_with_loss = ModleWithLoss(model, self.loss)
 
     def set_device(self, gpus, chunk_sizes, device):
@@ -303,16 +308,16 @@ class Trainer(object):
         if len(self.opt.gpus) > 1:
             model_with_loss.module.loss.update_loss(epoch, ret)
         else:
-            model_with_loss.module.loss.update_loss(epoch, ret)
+            model_with_loss.loss.update_loss(epoch, ret)
         return ret, results
 
-    def _get_losses(self, opt):
+    def _get_losses(self, opt, logger=None):
         loss_order = ['hm', 'wh', 'reg', 'ltrb', 'hps', 'hm_hp', \
                       'hp_offset', 'dep', 'dim', 'rot', 'amodel_offset', \
                       'ltrb_amodal', 'tracking', 'nuscenes_att', 'velocity']
         loss_states = ['tot'] + [k for k in loss_order if k in opt.heads]
         # loss = GenericLoss(opt)
-        loss = LossWithStrategy(opt)
+        loss = LossWithStrategy(opt, logger)
         return loss_states, loss
 
     def debug(self, batch, output, iter_id, dataset):
