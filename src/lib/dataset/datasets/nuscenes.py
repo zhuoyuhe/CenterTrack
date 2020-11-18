@@ -118,6 +118,8 @@ class nuScenes(GenericDataset):
         else:
           size = [float(item['dim'][1]), float(item['dim'][2]), \
             float(item['dim'][0])]
+        for i in range(3):
+          size[i] = max(0.001, size[i])
         if 'translation' in item:
           translation = item['translation']
         else:
