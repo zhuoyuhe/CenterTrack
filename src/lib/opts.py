@@ -403,7 +403,7 @@ class opts(object):
             opt.groups['tracking'] = ['tracking']
     else:
         opt.groups = {head : [head] for head in opt.heads}
-    opt.group_weight = {group: 1 for group in opt.heads}
+    opt.group_weight = {group: 1 for group in opt.groups}
 
     for head in opt.weights:
       if opt.weights[head] == 0:
