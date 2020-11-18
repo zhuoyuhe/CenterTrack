@@ -44,7 +44,7 @@ def main(opt):
     model, optimizer, start_epoch = load_model(
       model, opt.load_model, opt, optimizer)
 
-  trainer = Trainer(opt, model, optimizer)
+  trainer = Trainer(opt, model, optimizer, logger)
   trainer.set_device(opt.gpus, opt.chunk_sizes, opt.device)
   
   if opt.val_intervals < opt.num_epochs or opt.test:

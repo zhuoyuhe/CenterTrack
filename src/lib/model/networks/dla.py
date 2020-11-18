@@ -335,8 +335,9 @@ def dla34(pretrained=True, **kwargs):  # DLA-34
                 [16, 32, 64, 128, 256, 512],
                 block=BasicBlock, **kwargs)
     if pretrained:
-        model.load_pretrained_model(
-            data='imagenet', name='/mnt/luci-cpfs/luci-hangzhou/xinjing/pretrained_model/centertrack/dla34-ba72cf86.pth', hash='ba72cf86')
+        pass
+        # model.load_pretrained_model(
+        #     data='imagenet', name='/mnt/luci-cpfs/luci-hangzhou/xinjing/pretrained_model/centertrack/dla34-ba72cf86.pth', hash='ba72cf86')
     else:
         print('Warning: No ImageNet pretrain!!')
     return model

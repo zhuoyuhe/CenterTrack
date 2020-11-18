@@ -39,7 +39,7 @@ class opts(object):
                                   'in the exp dir if load_model is empty.') 
 
     # system
-    self.parser.add_argument('--gpus', default='0', 
+    self.parser.add_argument('--gpus', default='0',
                              help='-1 for CPU, use comma for multiple gpus')
     self.parser.add_argument('--num_workers', type=int, default=4,
                              help='dataloader threads. 0 for single-thread.')
@@ -83,7 +83,7 @@ class opts(object):
                              help='model architecture. Currently tested'
                                   'res_18 | res_101 | resdcn_18 | resdcn_101 |'
                                   'dlav0_34 | dla_34 | hourglass')
-    self.parser.add_argument('--dla_node', default='dcn') 
+    self.parser.add_argument('--dla_node', default='dcn')
     self.parser.add_argument('--head_conv', type=int, default=-1,
                              help='conv layer channels for output head'
                                   '0 for no conv layer'
@@ -250,8 +250,24 @@ class opts(object):
     self.parser.add_argument('--nuscenes_att_weight', type=float, default=1)
     self.parser.add_argument('--velocity', action='store_true')
     self.parser.add_argument('--velocity_weight', type=float, default=1)
-    self.parser.add_argument('--data_dir', type=str, default='',
+    self.parser.add_argument('--data_dir', type=str, default='C:/Users/zhuoyuhe/Desktop/CIS-700/CenterTrack/data',
                              help='dir of dataset')
+
+    # optimizer
+    self.parser.add_argument('--weight_strategy', type=str, default='', help=" |DWA | UNCER | "
+                                                                                "GRADNORM | UNIFORM")
+    self.parser.add_argument("--weight_optim_lr", type=float, default=1.25e-4)
+    self.parser.add_argument("--weight_optim", type=str, default='adam', help="adam | sgd")
+    self.parser.add_argument("--weight_grouping", action='store_true')
+
+    # DWA params
+    self.parser.add_argument("--dwa_T", type=float, default=2.0)
+
+    # uncertainty params
+    self.parser.add_argument("--uncer_mode", type=str, default='BASIC', help="BASIC | IMPROVED")
+
+    # GradNorm params
+    self.parser.add_argument("--gradnorm_alpha", type=float, default=1.0)
 
     # custom dataset
     self.parser.add_argument('--custom_dataset_img_path', default='')
@@ -378,6 +394,17 @@ class opts(object):
                    'nuscenes_att': opt.nuscenes_att_weight,
                    'velocity': opt.velocity_weight}
     opt.weights = {head: weight_dict[head] for head in opt.heads}
+
+    if opt.weight_grouping:
+        opt.groups={'det' : ['hm', 'reg', 'wh']}
+        if 'ddd' in opt.task:
+            opt.groups['ddd'] = ['dep', 'rot', 'dim', 'amodel_offset']
+        if 'tracking' in opt.task:
+            opt.groups['tracking'] = ['tracking']
+    else:
+        opt.groups = {head : [head] for head in opt.heads}
+    opt.group_weight = {group: 1 for group in opt.heads}
+
     for head in opt.weights:
       if opt.weights[head] == 0:
         del opt.heads[head]
