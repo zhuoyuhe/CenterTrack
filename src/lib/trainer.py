@@ -129,7 +129,7 @@ class LossWithStrategy(GenericLoss):
         for group in self.group_weight:
             self.logger.write('{} {:8f} | '.format(group, self.group_weight[group]))
         self.logger.write('\n')
-
+        print(self.weight)
     def update_loss(self, epoch, loss_ret):
         if self.weight_strategy == 'DWA':
             for group in self.groups:
