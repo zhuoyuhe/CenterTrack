@@ -100,7 +100,10 @@ class LossWithStrategy(GenericLoss):
         self.groups = opt.groups
         self.group_weight = opt.group_weight
         if self.weight_strategy == 'DWA':
-            self.loss_history = {group: [] for group in self.groups}
+            if opt.resume:
+                self.loss_history = opt.his_loss_dict
+            else:
+                self.loss_history = {group: [] for group in self.groups}
             self.K = len(self.groups)
             self.T = opt.dwa_T
         elif self.weight_strategy == 'UNCER':
@@ -118,7 +121,7 @@ class LossWithStrategy(GenericLoss):
                 lambda_w_sum = 0
                 lambda_w_group = {group: 0 for group in self.groups}
                 for group in self.groups:
-                    w = self.loss_history[group][epoch - 2] / self.loss_history[group][epoch - 3]
+                    w = self.loss_history[group][-1] / self.loss_history[group][-2]
                     lambda_w = np.exp(w / self.T)
                     lambda_w_group[group] = lambda_w
                     lambda_w_sum += lambda_w

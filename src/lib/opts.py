@@ -262,6 +262,7 @@ class opts(object):
 
     # DWA params
     self.parser.add_argument("--dwa_T", type=float, default=2.0)
+    self.parser.add_argument("--his_loss_dict", type=dict, default={'det':[], 'ddd':[]})
 
     # uncertainty params
     self.parser.add_argument("--uncer_mode", type=str, default='BASIC', help="BASIC | IMPROVED")
