@@ -278,10 +278,11 @@ class Trainer(object):
                     if len(self.opt.gpus) > 1:
                         model_with_loss.module.loss.optimizer.step()
                         model_with_loss.module.loss.optimizer.zero_grad()
+                        print(model_with_loss.module.loss.group_weight)
                     else:
                         model_with_loss.loss.optimizer.step()
                         model_with_loss.loss.optimizer.zero_grad()
-                    print(self.model_with_loss.loss.loss_model.log_sigma)
+                        print(model_with_loss.loss.group_weight)
             batch_time.update(time.time() - end)
             end = time.time()
 
