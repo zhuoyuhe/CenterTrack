@@ -51,14 +51,13 @@ class ForwardDetector(object):
         self.tracker = Tracker(opt)
         self.debugger = Debugger(opt=opt, dataset=self.trained_dataset)
 
-    def run(self, image_or_path_or_tensor, meta={}):
+    def run(self, image, meta={}):
         load_time, pre_time, net_time, dec_time, post_time = 0, 0, 0, 0, 0
         merge_time, track_time, tot_time, display_time = 0, 0, 0, 0
         start_time = time.time()
 
         # read image
         pre_processed = False
-        image = cv2.imread(image_or_path_or_tensor)
 
         loaded_time = time.time()
         load_time += (loaded_time - start_time)

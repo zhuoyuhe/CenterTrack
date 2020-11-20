@@ -10,7 +10,7 @@ class opts(object):
   def __init__(self):
     self.parser = argparse.ArgumentParser()
     # basic experiment setting
-    self.parser.add_argument('--task', default='tracking,ddd,traffic_light',
+    self.parser.add_argument('--task', default='tracking,ddd',
                              help='ctdet | ddd | multi_pose '
                              '| tracking or combined with ,')
     self.parser.add_argument('--dataset', default='kitti_tracking',
@@ -30,7 +30,7 @@ class opts(object):
     self.parser.add_argument('--demo', default='', 
                              help='path to image/ image folders/ video. '
                                   'or "webcam"')
-    self.parser.add_argument('--load_model', default='/home/zhuoyu/Documents/CIS-700/CenterTrack/model/model_last.pth',
+    self.parser.add_argument('--load_model', default='/home/zhuoyu/Documents/CIS-700/Guidedog/catkin_ws/src/cv_forward/CenterTrack/model/model_last.pth',
                              help='path to pretrained model')
     self.parser.add_argument('--resume', action='store_true',
                              help='resume an experiment. '
@@ -122,7 +122,7 @@ class opts(object):
                              help='when to save the model to disk.')
     self.parser.add_argument('--num_epochs', type=int, default=70,
                              help='total training epochs.')
-    self.parser.add_argument('--batch_size', type=int, default=2,
+    self.parser.add_argument('--batch_size', type=int, default=12,
                              help='batch size')
     self.parser.add_argument('--master_batch_size', type=int, default=-1,
                              help='batch size on the master gpu.')
@@ -250,7 +250,7 @@ class opts(object):
     self.parser.add_argument('--nuscenes_att_weight', type=float, default=1)
     self.parser.add_argument('--velocity', action='store_true')
     self.parser.add_argument('--velocity_weight', type=float, default=1)
-    self.parser.add_argument('--data_dir', type=str, default='C:/Users/zhuoyuhe/Desktop/CIS-700/CenterTrack/data',
+    self.parser.add_argument('--data_dir', type=str, default='/home/zhuoyu/Documents/inciepo/CenterTrack/data',
                              help='dir of dataset')
 
 
