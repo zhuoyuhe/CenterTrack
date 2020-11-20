@@ -108,7 +108,7 @@ class LossWithStrategy(GenericLoss):
             self.T = opt.dwa_T
         elif self.weight_strategy == 'UNCER':
             self.group_idx = {group: i for i, group in enumerate(self.groups)}
-            self.loss_model = UncertaintyWeightLoss(self.group_idx, self.groups, opt.uncer_mode)
+            self.loss_model = UncertaintyWeightLoss(self.group_idx, self.groups, opt)
             self.optimizer = get_loss_optimizer(model=self.loss_model, opt=opt)
         elif self.weight_strategy == 'GRADNORM':
             self.group_idx = {group: i for i, group in enumerate(self.groups)}

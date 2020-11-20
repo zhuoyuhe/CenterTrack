@@ -265,8 +265,8 @@ class opts(object):
     self.parser.add_argument("--his_loss_dict", type=dict, default={'det':[], 'ddd':[]})
 
     # uncertainty params
-    self.parser.add_argument("--uncer_mode", type=str, default='BASIC', help="BASIC | IMPROVED")
-
+    self.parser.add_argument("--uncer_mode", type=str, default='IMPROVED', help="BASIC | IMPROVED")
+    self.parser.add_argument("--logsigma", type=dict, default={'det': 0.5181, 'ddd': 0.7931})
     # GradNorm params
     self.parser.add_argument("--gradnorm_alpha", type=float, default=1.0)
 

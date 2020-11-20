@@ -3,14 +3,17 @@ import torch.nn as nn
 
 
 class UncertaintyWeightLoss(nn.Module):
-    def __init__(self, group_idx, groups, method):
+    def __init__(self, group_idx, groups, opt):
         super(UncertaintyWeightLoss, self).__init__()
         self.group_idx = group_idx
         self.groups = groups
         self.num = len(group_idx)
         params = torch.zeros(self.num)
+        if not opt.resume:
+            for group in groups:
+                params[group_idx[group]] = opt.logsigma[group]
         self.log_sigma = torch.nn.Parameter(params)
-        self.method = method
+        self.method = opt.uncer_mode
 
     def forward(self, loss_dict):
         loss_total = 0
