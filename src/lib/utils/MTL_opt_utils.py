@@ -9,7 +9,7 @@ class UncertaintyWeightLoss(nn.Module):
         self.groups = groups
         self.num = len(group_idx)
         params = torch.zeros(self.num)
-        if not opt.resume:
+        if opt.resume:
             for group in groups:
                 params[group_idx[group]] = opt.logsigma[group]
         self.log_sigma = torch.nn.Parameter(params)
