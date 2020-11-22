@@ -10,7 +10,7 @@ class opts(object):
   def __init__(self):
     self.parser = argparse.ArgumentParser()
     # basic experiment setting
-    self.parser.add_argument('--task', default='tracking,ddd,traffic_light',
+    self.parser.add_argument('--task', default='tracking,ddd',
                              help='ctdet | ddd | multi_pose '
                              '| tracking or combined with ,')
     self.parser.add_argument('--dataset', default='kitti_tracking',
@@ -30,7 +30,7 @@ class opts(object):
     self.parser.add_argument('--demo', default='', 
                              help='path to image/ image folders/ video. '
                                   'or "webcam"')
-    self.parser.add_argument('--load_model', default='C:/Users/zhuoyuhe/Desktop/CIS-700/CenterTrack/model/model_last.pth',
+    self.parser.add_argument('--load_model', default='/home/zhuoyu/Documents/CIS-700/Guidedog/catkin_ws/src/cv_forward/CenterTrack/model/model_last.pth',
                              help='path to pretrained model')
     self.parser.add_argument('--resume', action='store_true',
                              help='resume an experiment. '
@@ -39,7 +39,7 @@ class opts(object):
                                   'in the exp dir if load_model is empty.') 
 
     # system
-    self.parser.add_argument('--gpus', default='-1',
+    self.parser.add_argument('--gpus', default='0',
                              help='-1 for CPU, use comma for multiple gpus')
     self.parser.add_argument('--num_workers', type=int, default=1,
                              help='dataloader threads. 0 for single-thread.')
@@ -122,7 +122,7 @@ class opts(object):
                              help='when to save the model to disk.')
     self.parser.add_argument('--num_epochs', type=int, default=70,
                              help='total training epochs.')
-    self.parser.add_argument('--batch_size', type=int, default=2,
+    self.parser.add_argument('--batch_size', type=int, default=12,
                              help='batch size')
     self.parser.add_argument('--master_batch_size', type=int, default=-1,
                              help='batch size on the master gpu.')
@@ -212,7 +212,7 @@ class opts(object):
     self.parser.add_argument('--lost_disturb', type=float, default=0)
     self.parser.add_argument('--fp_disturb', type=float, default=0)
     self.parser.add_argument('--pre_thresh', type=float, default=-1)
-    self.parser.add_argument('--track_thresh', type=float, default=0.3)
+    self.parser.add_argument('--track_thresh', type=float, default=0.1)
     self.parser.add_argument('--new_thresh', type=float, default=0.3)
     self.parser.add_argument('--max_frame_dist', type=int, default=3)
     self.parser.add_argument('--ltrb_amodal', action='store_true')
@@ -250,7 +250,7 @@ class opts(object):
     self.parser.add_argument('--nuscenes_att_weight', type=float, default=1)
     self.parser.add_argument('--velocity', action='store_true')
     self.parser.add_argument('--velocity_weight', type=float, default=1)
-    self.parser.add_argument('--data_dir', type=str, default='C:/Users/zhuoyuhe/Desktop/CIS-700/CenterTrack/data',
+    self.parser.add_argument('--data_dir', type=str, default='/home/zhuoyu/Documents/inciepo/CenterTrack/data',
                              help='dir of dataset')
 
 
@@ -261,8 +261,8 @@ class opts(object):
     # traffic_light
     self.parser.add_argument('--light_weight', type=float, default=1,
                              help='loss weight for traffic_light Classification.')
-    self.parser.add_argument('--light_flatten_num', type=int, default=1966080,
-                             help='loss weight for traffic_light Classification.')
+    self.parser.add_argument('--light_flatten_num', type=int, default=640000)
+    self.parser.add_argument('--light_kernel', type=int, default=3)
   def parse(self, args=''):
     if args == '':
       opt = self.parser.parse_args()
@@ -271,7 +271,9 @@ class opts(object):
   
     if opt.test_dataset == '':
       opt.test_dataset = opt.dataset
-    
+
+    if opt.dataset == 'kitti_tracking':
+        opt.light_flatten_num = 491520
     opt.gpus_str = opt.gpus
     opt.gpus = [int(gpu) for gpu in opt.gpus.split(',')]
     opt.gpus = [i for i in range(len(opt.gpus))] if opt.gpus[0] >=0 else [-1]
@@ -392,7 +394,8 @@ class opts(object):
         del opt.heads[head]
     opt.head_conv = {head: [opt.head_conv \
       for i in range(opt.num_head_conv if head != 'reg' else 1)] for head in opt.heads}
-    
+    if 'traffic_light' in opt.task:
+        opt.head_conv['traffic_light'] = [64, 16]
     print('input h w:', opt.input_h, opt.input_w)
     print('heads', opt.heads)
     print('weights', opt.weights)

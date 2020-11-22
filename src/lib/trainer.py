@@ -17,6 +17,7 @@ from model.decode import generic_decode
 from model.utils import _sigmoid, flip_tensor, flip_lr_off, flip_lr
 from utils.debugger import Debugger
 from utils.post_process import generic_post_process
+from tqdm import tqdm
 
 class GenericLoss(torch.nn.Module):
   def __init__(self, opt):
@@ -144,7 +145,7 @@ class Trainer(object):
     num_iters = len(data_loader) if opt.num_iters < 0 else opt.num_iters
     bar = Bar('{}/{}'.format(opt.task, opt.exp_id), max=num_iters)
     end = time.time()
-    for iter_id, batch in enumerate(data_loader):
+    for iter_id, batch in enumerate(tqdm(data_loader)):
       if iter_id >= num_iters:
         break
       data_time.update(time.time() - end)

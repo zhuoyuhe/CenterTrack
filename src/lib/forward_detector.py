@@ -51,14 +51,13 @@ class ForwardDetector(object):
         self.tracker = Tracker(opt)
         self.debugger = Debugger(opt=opt, dataset=self.trained_dataset)
 
-    def run(self, image_or_path_or_tensor, meta={}):
+    def run(self, image, meta={}):
         load_time, pre_time, net_time, dec_time, post_time = 0, 0, 0, 0, 0
         merge_time, track_time, tot_time, display_time = 0, 0, 0, 0
         start_time = time.time()
 
         # read image
         pre_processed = False
-        image = cv2.imread(image_or_path_or_tensor)
 
         loaded_time = time.time()
         load_time += (loaded_time - start_time)
@@ -105,7 +104,7 @@ class ForwardDetector(object):
         post_time += post_process_time - decode_time
 
 
-        # torch.cuda.synchronize()
+        torch.cuda.synchronize()
         end_time = time.time()
 
         if self.opt.tracking:
@@ -283,17 +282,17 @@ class ForwardDetector(object):
     def process(self, images, pre_images=None, pre_hms=None,
                 pre_inds=None, return_time=False):
         with torch.no_grad():
-            # torch.cuda.synchronize()
+            torch.cuda.synchronize()
             output = self.model(images, pre_images, pre_hms)[-1]
             output = self._sigmoid_output(output)
             output.update({'pre_inds': pre_inds})
             if self.opt.flip_test:
                 output = self._flip_output(output)
-            # torch.cuda.synchronize()
+            torch.cuda.synchronize()
             forward_time = time.time()
 
             dets = generic_decode(output, K=self.opt.K, opt=self.opt)
-            # torch.cuda.synchronize()
+            torch.cuda.synchronize()
             for k in dets:
                 dets[k] = dets[k].detach().cpu().numpy()
         if return_time:
