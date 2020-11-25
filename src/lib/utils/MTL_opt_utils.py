@@ -73,10 +73,10 @@ class GradNormWeightLoss(nn.Module):
         tar_dict = {}
         l_hat = {}
         for group in self.group_idx:
-            print(torch.autograd.grad(self.weighted_loss[group], self.weight))
+            print(torch.autograd.grad(self.weighted_loss[group], self.weight, retain_graph=True, create_graph=True))
             gr = torch.autograd.grad(self.weighted_loss[group], param, retain_graph=True, create_graph=True)
             g_dict[group] = torch.norm(gr[0], 2)
-            print(torch.autograd.grad(g_dict[group], self.weight))
+            print(torch.autograd.grad(g_dict[group], self.weight, retain_graph=True, create_graph=True))
             g_total += g_dict[group]
             l_hat[group] = self.weighted_loss[group] / self.loss_0[group]
             l_hat_total += l_hat[group]
