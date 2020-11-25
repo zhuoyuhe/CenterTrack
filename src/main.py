@@ -38,9 +38,6 @@ def main(opt):
 
   print('Creating model...')
   model = create_model(opt.arch, opt.heads, opt.head_conv, opt=opt)
-  param = list(model.backbone.parameters())
-  print(model)
-  print(param[150].shape)
   optimizer = get_optimizer(opt, model)
   start_epoch = 0
   if opt.load_model != '':
