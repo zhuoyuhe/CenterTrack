@@ -254,11 +254,11 @@ class opts(object):
                              help='dir of dataset')
 
     # optimizer
-    self.parser.add_argument('--weight_strategy', type=str, default='GRADNORM', help=" |DWA | UNCER | "
+    self.parser.add_argument('--weight_strategy', type=str, default='', help=" |DWA | UNCER | "
                                                                                 "GRADNORM | UNIFORM")
     self.parser.add_argument("--weight_optim_lr", type=float, default=1.25e-4)
     self.parser.add_argument("--weight_optim", type=str, default='adam', help="adam | sgd")
-    self.parser.add_argument("--weight_grouping", action='store_true', default=True)
+    self.parser.add_argument("--weight_grouping", action='store_true')
 
     # DWA params
     self.parser.add_argument("--dwa_T", type=float, default=2.0)
