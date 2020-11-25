@@ -38,7 +38,7 @@ def main(opt):
 
   print('Creating model...')
   model = create_model(opt.arch, opt.heads, opt.head_conv, opt=opt)
-  print(list(model.neck.ida_up.node_2.conv.parameters())[0])
+  print(list(model.neck.ida_up.node_2.conv.parameters())[0].shape)
   optimizer = get_optimizer(opt, model)
   start_epoch = 0
   if opt.load_model != '':
