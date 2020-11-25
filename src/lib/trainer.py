@@ -267,7 +267,7 @@ class Trainer(object):
                 if opt.weight_strategy == 'GRADNORM':
                     loss.backward(retain_graph=True)
                     if len(self.opt.gpus) > 1:
-                        model_with_loss.module.loss.loss_model.update_weight(model_with_loss.model, model_with_loss.loss.optimizer, loss_stats)
+                        model_with_loss.module.loss.loss_model.update_weight(model_with_loss.module.model, model_with_loss.module.loss.optimizer, loss_stats)
                     else:
                         model_with_loss.loss.loss_model.update_weight(model_with_loss.model,
                                                                       model_with_loss.loss.optimizer, loss_stats)
