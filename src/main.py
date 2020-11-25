@@ -38,6 +38,7 @@ def main(opt):
 
   print('Creating model...')
   model = create_model(opt.arch, opt.heads, opt.head_conv, opt=opt)
+  print(model)
   optimizer = get_optimizer(opt, model)
   start_epoch = 0
   if opt.load_model != '':
