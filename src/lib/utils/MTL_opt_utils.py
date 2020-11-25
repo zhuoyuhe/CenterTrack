@@ -64,7 +64,9 @@ class GradNormWeightLoss(nn.Module):
                     group_l += loss_dict[head].data
                 self.loss_0[group] = group_l
 
-        param = list(MTL_model.neck.ida_up.up_2.parameters())
+        param = list(MTL_model.neck.parameters())
+        for p in param:
+            print(p.shape)
         g_total = 0
         l_hat_total = 0
 
@@ -91,7 +93,7 @@ class GradNormWeightLoss(nn.Module):
         loss_grad = sum(self.loss_func(g_dict[group], tar_dict[group]) for group in self.group_idx)
         # print(loss_grad)
         # loss_grad.backward()
-        self.weight.grad = torch.autograd.grad(loss_grad, self.weight, allow_unused=True)[0]
+        self.weight.grad = torch.autograd.grad(loss_grad, self.weight)[0]
         print(self.weight)
         loss_optimizer.step()
 
