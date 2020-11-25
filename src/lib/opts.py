@@ -10,10 +10,10 @@ class opts(object):
   def __init__(self):
     self.parser = argparse.ArgumentParser()
     # basic experiment setting
-    self.parser.add_argument('task', default='',
+    self.parser.add_argument('--task', default='ddd',
                              help='ctdet | ddd | multi_pose '
                              '| tracking or combined with ,')
-    self.parser.add_argument('--dataset', default='coco',
+    self.parser.add_argument('--dataset', default='kitti_tracking',
                              help='see lib/dataset/dataset_facotry for ' + 
                             'available datasets')
     self.parser.add_argument('--test_dataset', default='',
@@ -39,7 +39,7 @@ class opts(object):
                                   'in the exp dir if load_model is empty.') 
 
     # system
-    self.parser.add_argument('--gpus', default='0',
+    self.parser.add_argument('--gpus', default='-1',
                              help='-1 for CPU, use comma for multiple gpus')
     self.parser.add_argument('--num_workers', type=int, default=4,
                              help='dataloader threads. 0 for single-thread.')
@@ -79,11 +79,11 @@ class opts(object):
     self.parser.add_argument('--show_trace', action='store_true')
 
     # model
-    self.parser.add_argument('--arch', default='dla_34',
+    self.parser.add_argument('--arch', default='generic',
                              help='model architecture. Currently tested'
                                   'res_18 | res_101 | resdcn_18 | resdcn_101 |'
                                   'dlav0_34 | dla_34 | hourglass')
-    self.parser.add_argument('--dla_node', default='dcn')
+    self.parser.add_argument('--dla_node', default='gcn')
     self.parser.add_argument('--head_conv', type=int, default=-1,
                              help='conv layer channels for output head'
                                   '0 for no conv layer'
@@ -96,7 +96,7 @@ class opts(object):
     self.parser.add_argument('--not_idaup', action='store_true')
     self.parser.add_argument('--num_classes', type=int, default=-1)
     self.parser.add_argument('--num_layers', type=int, default=101)
-    self.parser.add_argument('--backbone', default='dla34')
+    self.parser.add_argument('--backbone', default='mobilenet')
     self.parser.add_argument('--neck', default='dlaup')
     self.parser.add_argument('--msra_outchannel', type=int, default=256)
     self.parser.add_argument('--efficient_level', type=int, default=0)
@@ -122,7 +122,7 @@ class opts(object):
                              help='when to save the model to disk.')
     self.parser.add_argument('--num_epochs', type=int, default=70,
                              help='total training epochs.')
-    self.parser.add_argument('--batch_size', type=int, default=32,
+    self.parser.add_argument('--batch_size', type=int, default=2,
                              help='batch size')
     self.parser.add_argument('--master_batch_size', type=int, default=-1,
                              help='batch size on the master gpu.')
@@ -254,7 +254,7 @@ class opts(object):
                              help='dir of dataset')
 
     # optimizer
-    self.parser.add_argument('--weight_strategy', type=str, default='', help=" |DWA | UNCER | "
+    self.parser.add_argument('--weight_strategy', type=str, default='GRADNORM', help=" |DWA | UNCER | "
                                                                                 "GRADNORM | UNIFORM")
     self.parser.add_argument("--weight_optim_lr", type=float, default=1.25e-4)
     self.parser.add_argument("--weight_optim", type=str, default='adam', help="adam | sgd")
