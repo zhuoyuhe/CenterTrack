@@ -65,7 +65,7 @@ class GradNormWeightLoss(nn.Module):
                 self.loss_0[group] = group_l
 
         param = list(MTL_model.neck.parameters())[-2]
-        print(param.shape)
+        print(param.requires_grad)
         g_total = 0
         l_hat_total = 0
 
