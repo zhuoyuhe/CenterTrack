@@ -48,6 +48,7 @@ class GradNormWeightLoss(nn.Module):
         weight_total = sum(self.weight[i] for i in range(self.num))
         # print(self.weight.grad)
         torch.div(self.weight, weight_total)
+        print(self.weight)
         loss_total = 0
         for group in self.group_idx:
             idx = self.group_idx[group]
