@@ -271,7 +271,7 @@ class Trainer(object):
                     loss.backward(retain_graph=True)
                     if len(self.opt.gpus) > 1:
                         # model_with_loss.module.loss.loss_model.update_weight(model_with_loss.module.model, model_with_loss.module.loss.optimizer, loss_stats)
-                        model_with_loss.module.loss.loss_model.weight.grad = torch.autograd.grad(loss_stats['update'],
+                        model_with_loss.module.loss.loss_model.weight.grad = torch.autograd.grad(torch.sum(loss_stats['update']),
                                                                                       model_with_loss.module.loss.loss_model.weight)[0]
                         print(self.model_with_loss.module.loss.weight)
                         model_with_loss.module.loss.optimizer.step()
