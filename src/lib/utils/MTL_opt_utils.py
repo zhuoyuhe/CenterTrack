@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+import time
 
 class UncertaintyWeightLoss(nn.Module):
     def __init__(self, group_idx, groups, opt):
@@ -15,7 +15,7 @@ class UncertaintyWeightLoss(nn.Module):
         self.log_sigma = torch.nn.Parameter(params)
         self.method = opt.uncer_mode
 
-    def forward(self, loss_dict):
+    def forward(self, loss_dict, param=None):
         loss_total = 0
         for group in self.group_idx:
             idx = self.group_idx[group]
@@ -27,7 +27,7 @@ class UncertaintyWeightLoss(nn.Module):
             else:
                 loss_total += 1 / (2 * torch.exp(2 * self.log_sigma[idx])) * group_loss + torch.log(
                     torch.exp(2 * self.log_sigma[idx]) + 1)
-        return loss_total, self.log_sigma
+        return loss_total, 0, self.log_sigma
 
 
 class GradNormWeightLoss(nn.Module):
@@ -44,7 +44,10 @@ class GradNormWeightLoss(nn.Module):
         self.loss_func = nn.L1Loss()
         self.weighted_loss = {}
 
-    def forward(self, loss_dict):
+    def forward(self, loss_dict, param):
+        weight_total = sum(self.weight[i] for i in range(self.num))
+        # print(self.weight.grad)
+        torch.div(self.weight, weight_total)
         loss_total = 0
         for group in self.group_idx:
             idx = self.group_idx[group]
@@ -54,9 +57,6 @@ class GradNormWeightLoss(nn.Module):
             self.weighted_loss[group] = self.weight[idx] * group_loss
             loss_total += self.weighted_loss[group]
 
-        return loss_total, self.weight
-
-    def update_weight(self, MTL_model, loss_optimizer, loss_dict):
         if len(self.loss_0) == 0:
             for group in self.group_idx:
                 group_l = 0
@@ -64,7 +64,7 @@ class GradNormWeightLoss(nn.Module):
                     group_l += loss_dict[head].data
                 self.loss_0[group] = group_l
 
-        param = list(MTL_model.neck.parameters())[-2]
+
         g_total = 0
         l_hat_total = 0
 
@@ -92,20 +92,11 @@ class GradNormWeightLoss(nn.Module):
             inv_r_dict[group] = l_hat[group] / l_hat_ave
             tar_dict[group] = (g_ave * (inv_r_dict[group]) ** self.alpha).detach()
 
-        loss_optimizer.zero_grad()
-
         loss_grad = sum(self.loss_func(g_dict[group], tar_dict[group]) for group in self.group_idx)
         # print(loss_grad)
         # loss_grad.backward()
-        self.weight.grad = torch.autograd.grad(loss_grad, self.weight)[0]
-        print(self.weight)
-        loss_optimizer.step()
-
-        weight_total = sum(self.weight[i] for i in range(self.num))
-        # print(self.weight.grad)
-        torch.div(self.weight, weight_total)
         # print(self.weight)
-        return
+        return loss_total, loss_grad, self.weight
 
 
 
