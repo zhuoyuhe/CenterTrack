@@ -47,7 +47,7 @@ class GradNormWeightLoss(nn.Module):
     def forward(self, loss_dict, param):
         weight_total = sum(self.weight[i] for i in range(self.num))
         # print(self.weight.grad)
-        torch.div(self.weight, weight_total)
+        self.weight.data = (self.num * self.weight/weight_total)
         print(self.weight)
         loss_total = 0
         for group in self.group_idx:
