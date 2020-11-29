@@ -15,7 +15,7 @@ class UncertaintyWeightLoss(nn.Module):
         self.log_sigma = torch.nn.Parameter(params)
         self.method = opt.uncer_mode
 
-    def forward(self, loss_dict, param=None):
+    def forward(self, loss_dict, param=None, epoch=None):
         loss_total = 0
         for group in self.group_idx:
             idx = self.group_idx[group]
@@ -44,7 +44,7 @@ class GradNormWeightLoss(nn.Module):
         self.loss_func = nn.L1Loss()
         self.weighted_loss = {}
 
-    def forward(self, loss_dict, param):
+    def forward(self, loss_dict, param, epoch):
         weight_total = sum(self.weight[i] for i in range(self.num))
         # print(self.weight.grad)
         self.weight.data = (self.num * self.weight/weight_total)
@@ -58,7 +58,7 @@ class GradNormWeightLoss(nn.Module):
             self.weighted_loss[group] = self.weight[idx] * group_loss
             loss_total += self.weighted_loss[group]
 
-        if len(self.loss_0) == 0:
+        if len(self.loss_0) == 0 or epoch == 1:
             for group in self.group_idx:
                 group_l = 0
                 for head in self.groups[group]:

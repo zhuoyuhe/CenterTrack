@@ -143,7 +143,7 @@ class LossWithStrategy(GenericLoss):
                     group_loss += loss_ret[head]
                 self.loss_history[group].append(group_loss)
 
-    def forward(self, outputs, batch):
+    def forward(self, outputs, batch, epoch=None):
         opt = self.opt
         losses = {head: 0 for head in opt.heads}
 
@@ -187,7 +187,7 @@ class LossWithStrategy(GenericLoss):
 
         losses['tot'] = 0
         if self.weight_strategy in ['UNCER', 'GRADNORM']:
-            losses['tot'], losses['update'], updated_weight = self.loss_model(losses, self.param)
+            losses['tot'], losses['update'], updated_weight = self.loss_model(losses, self.param, epoch)
             for group in self.group_weight:
                 self.group_weight[group] = updated_weight[self.group_idx[group]]
         else:
@@ -203,11 +203,11 @@ class ModleWithLoss(torch.nn.Module):
         self.model = model
         self.loss = loss
 
-    def forward(self, batch):
+    def forward(self, batch, epoch=None):
         pre_img = batch['pre_img'] if 'pre_img' in batch else None
         pre_hm = batch['pre_hm'] if 'pre_hm' in batch else None
         outputs = self.model(batch['image'], pre_img, pre_hm)
-        loss, loss_stats = self.loss(outputs, batch)
+        loss, loss_stats = self.loss(outputs, batch, epoch)
         return outputs[-1], loss, loss_stats
 
 
@@ -219,6 +219,7 @@ class Trainer(object):
         param = list(model.neck.parameters())[-2]
         self.loss_stats, self.loss = self._get_losses(opt, logger, param)
         self.model_with_loss = ModleWithLoss(model, self.loss)
+        self.old_norm = 0
 
     def set_device(self, gpus, chunk_sizes, device):
         if len(gpus) > 1:
@@ -263,7 +264,7 @@ class Trainer(object):
             for k in batch:
                 if k != 'meta':
                     batch[k] = batch[k].to(device=opt.device, non_blocking=True)
-            output, loss, loss_stats = model_with_loss(batch)
+            output, loss, loss_stats = model_with_loss(batch, epoch)
             loss = loss.mean()
             if phase == 'train':
                 self.optimizer.zero_grad()
@@ -272,19 +273,27 @@ class Trainer(object):
                     if len(self.opt.gpus) > 1:
                         # model_with_loss.module.loss.loss_model.update_weight(model_with_loss.module.model, model_with_loss.module.loss.optimizer, loss_stats)
                         # torch.sum(loss_stats['update']).backward()
-                        model_with_loss.module.loss.loss_model.weight.grad = torch.autograd.grad(torch.sum(loss_stats['update']),
-                                                                                      model_with_loss.module.loss.loss_model.weight)[0]
-                        model_with_loss.module.loss.optimizer.step()
                         model_with_loss.module.loss.optimizer.zero_grad()
+                        temp_grad = torch.autograd.grad(torch.sum(loss_stats['update']),
+                                                        model_with_loss.module.loss.loss_model.weight)[0]
+                        grad_norm = torch.norm(temp_grad.data, 1)
+                        print(grad_norm)
+                        if grad_norm > opt.gradnorm_thred:
+                            temp_grad = torch.zeros_like(temp_grad)
+                        model_with_loss.module.loss.loss_model.weight.grad = temp_grad
+                        model_with_loss.module.loss.optimizer.step()
                     else:
                         # model_with_loss.loss.loss_model.update_weight(model_with_loss.model,
                         #                                               model_with_loss.loss.optimizer, loss_stats)
-                        model_with_loss.loss.loss_model.weight.grad = torch.autograd.grad(loss_stats['update'],
-                                                                                          model_with_loss.loss.loss_model.
-                                                                                          weight)[0]
-                        model_with_loss.loss.optimizer.step()
                         model_with_loss.loss.optimizer.zero_grad()
-                        print(self.model_with_loss.loss.weight)
+                        temp_grad = torch.autograd.grad(loss_stats['update'],
+                                                        model_with_loss.loss.loss_model.
+                                                        weight)[0]
+                        grad_norm = torch.norm(temp_grad.data, 1)
+                        if grad_norm > opt.gradnorm_thred:
+                            temp_grad = torch.zeros_like(temp_grad)
+                        model_with_loss.loss.loss_model.weight.grad = temp_grad
+                        model_with_loss.loss.optimizer.step()
                 else:
                     loss.backward()
                 self.optimizer.step()

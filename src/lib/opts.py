@@ -269,7 +269,7 @@ class opts(object):
     self.parser.add_argument("--logsigma", type=dict, default={'det': 0.5181, 'ddd': 0.7931})
     # GradNorm params
     self.parser.add_argument("--gradnorm_alpha", type=float, default=1.0)
-
+    self.parser.add_argument("--gradnorm_thred", type=float, default=1.0)
     # custom dataset
     self.parser.add_argument('--custom_dataset_img_path', default='')
     self.parser.add_argument('--custom_dataset_ann_path', default='')
