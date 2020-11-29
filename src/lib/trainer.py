@@ -113,7 +113,7 @@ class LossWithStrategy(GenericLoss):
         elif self.weight_strategy == 'GRADNORM':
             self.param = param
             self.group_idx = {group: i for i, group in enumerate(self.groups)}
-            self.loss_model = GradNormWeightLoss(self.group_idx, self.groups, opt.gradnorm_alpha)
+            self.loss_model = GradNormWeightLoss(self.group_idx, self.groups, opt)
             self.optimizer = get_loss_optimizer(model=self.loss_model, opt=opt)
 
     def update_weight(self, epoch):

@@ -31,16 +31,19 @@ class UncertaintyWeightLoss(nn.Module):
 
 
 class GradNormWeightLoss(nn.Module):
-    def __init__(self, group_idx, groups, alpha):
+    def __init__(self, group_idx, groups, opt):
         super().__init__()
         self.group_idx = group_idx
         self.groups = groups
         self.num = len(group_idx)
         params = torch.ones(self.num, requires_grad=True)
+        if opt.resume:
+            for group in groups:
+                params[group_idx[group]] = opt.grad_weight[group]
         self.weight = torch.nn.Parameter(params)
         self.loss_0 = {}
         self.num = len(self.group_idx)
-        self.alpha = alpha
+        self.alpha = opt.gradnorm_alpha
         self.loss_func = nn.L1Loss()
         self.weighted_loss = {}
 
