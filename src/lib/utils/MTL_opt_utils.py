@@ -46,6 +46,10 @@ class GradNormWeightLoss(nn.Module):
         self.alpha = opt.gradnorm_alpha
         self.loss_func = nn.L1Loss()
         self.weighted_loss = {}
+        if opt.resume:
+            for group in groups:
+                self.loss_0[group] = opt.grad_l0[group]
+            print(self.loss_0)
 
     def forward(self, loss_dict, param, epoch):
         weight_total = sum(self.weight[i] for i in range(self.num))
