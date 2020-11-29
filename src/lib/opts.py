@@ -270,7 +270,7 @@ class opts(object):
     # GradNorm params
     self.parser.add_argument("--gradnorm_alpha", type=float, default=1.0)
     self.parser.add_argument("--gradnorm_thred", type=float, default=100)
-    self.parser.add_argument("--grad_weight", type=dict, default={'det':  1.730513, 'ddd': 0.269487})
+    self.parser.add_argument("--grad_weight", type=dict, default={'det':  1.4724, 'ddd': 0.5276})
     self.parser.add_argument("--grad_l0", type=dict, default={'det': 7.688497, 'ddd': 12.817436})
     # custom dataset
     self.parser.add_argument('--custom_dataset_img_path', default='')
