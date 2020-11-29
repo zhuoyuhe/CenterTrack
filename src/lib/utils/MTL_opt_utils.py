@@ -118,7 +118,7 @@ def get_loss_optimizer(model, opt):
     elif opt.weight_optim == 'sgd':
         print('Using SGD')
         optimizer = torch.optim.SGD(
-            model.parameters(), opt.weight_optim_lr, momentum=0.9, weight_decay=0.0001)
+            model.parameters(), opt.weight_optim_lr, momentum=0, weight_decay=0.0)
     else:
         assert 0, opt.optim
     return optimizer
