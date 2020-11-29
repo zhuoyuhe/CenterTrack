@@ -217,6 +217,7 @@ class Trainer(object):
         self.opt = opt
         self.optimizer = optimizer
         param = list(model.neck.parameters())[-2]
+        print(param.shape)
         self.loss_stats, self.loss = self._get_losses(opt, logger, param)
         self.model_with_loss = ModleWithLoss(model, self.loss)
         self.old_norm = 0
