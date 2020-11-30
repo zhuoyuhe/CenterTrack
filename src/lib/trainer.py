@@ -237,11 +237,14 @@ class Trainer(object):
 
     def run_epoch(self, phase, epoch, data_loader):
         model_with_loss = self.model_with_loss
-        if self.opt.weight_strategy == 'GRADNORM':
-            model_with_loss.loss.optimizer = get_loss_optimizer(model=model_with_loss.loss.loss_model, opt=self.opt)
         if len(self.opt.gpus) > 1:
+            if self.opt.weight_strategy == 'GRADNORM':
+                model_with_loss.module.loss.optimizer = get_loss_optimizer(model=model_with_loss.module.loss.loss_model,
+                                                                           opt=self.opt)
             model_with_loss.module.loss.update_weight(epoch)
         else:
+            if self.opt.weight_strategy == 'GRADNORM':
+                model_with_loss.loss.optimizer = get_loss_optimizer(model=model_with_loss.loss.loss_model, opt=self.opt)
             model_with_loss.loss.update_weight(epoch)
         if phase == 'train':
             model_with_loss.train()
