@@ -186,8 +186,12 @@ class LossWithStrategy(GenericLoss):
                     batch['ind'], batch['nuscenes_att']) / opt.num_stacks
 
         losses['tot'] = 0
-        if self.weight_strategy in ['UNCER', 'GRADNORM']:
+        if self.weight_strategy =='GRADNORM':
             losses['tot'], losses['update'], updated_weight = self.loss_model(losses, self.param, epoch)
+            for group in self.group_weight:
+                self.group_weight[group] = updated_weight[self.group_idx[group]]
+        elif self.weight_strategy =='UNCER':
+            losses['tot'], updated_weight = self.loss_model(losses)
             for group in self.group_weight:
                 self.group_weight[group] = updated_weight[self.group_idx[group]]
         else:

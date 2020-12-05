@@ -15,7 +15,7 @@ class UncertaintyWeightLoss(nn.Module):
         self.log_sigma = torch.nn.Parameter(params)
         self.method = opt.uncer_mode
 
-    def forward(self, loss_dict, param=None, epoch=None):
+    def forward(self, loss_dict):
         loss_total = 0
         for group in self.group_idx:
             idx = self.group_idx[group]
@@ -27,7 +27,7 @@ class UncertaintyWeightLoss(nn.Module):
             else:
                 loss_total += 1 / (2 * torch.exp(2 * self.log_sigma[idx])) * group_loss + torch.log(
                     torch.exp(2 * self.log_sigma[idx]) + 1)
-        return loss_total, 0, self.log_sigma
+        return loss_total, self.log_sigma
 
 
 class GradNormWeightLoss(nn.Module):
