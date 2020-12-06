@@ -427,7 +427,7 @@ class opts(object):
             opt.head_conv['rot'].append(64)
     if opt.add_hw_head > 0:
         for num_h in range(opt.add_hw_head):
-            opt.head_conv['hw'].append(64)
+            opt.head_conv['wh'].append(64)
     if opt.add_reg_head > 0:
         for num_h in range(opt.add_reg_head):
             opt.head_conv['reg'].append(64)
