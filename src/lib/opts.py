@@ -96,7 +96,7 @@ class opts(object):
     self.parser.add_argument('--not_idaup', action='store_true')
     self.parser.add_argument('--num_classes', type=int, default=-1)
     self.parser.add_argument('--num_layers', type=int, default=101)
-    self.parser.add_argument('--backbone', default='dla34')
+    self.parser.add_argument('--backbone', default='mobilenet')
     self.parser.add_argument('--neck', default='dlaup')
     self.parser.add_argument('--msra_outchannel', type=int, default=256)
     self.parser.add_argument('--efficient_level', type=int, default=0)
@@ -280,6 +280,8 @@ class opts(object):
     #branch
     self.parser.add_argument('--add_depth_head', type=int, default=0)
     self.parser.add_argument('--add_rot_head', type=int, default=0)
+    self.parser.add_argument('--add_hw_head', type=int, default=0)
+    self.parser.add_argument('--add_reg_head', type=int, default=0)
 
   def parse(self, args=''):
     if args == '':
@@ -421,8 +423,14 @@ class opts(object):
         for num_h in range(opt.add_depth_head):
             opt.head_conv['dep'].append(64)
     if opt.add_rot_head > 0:
-        for num_h in range(opt.add_depth_head):
+        for num_h in range(opt.add_rot_head):
             opt.head_conv['rot'].append(64)
+    if opt.add_hw_head > 0:
+        for num_h in range(opt.add_hw_head):
+            opt.head_conv['hw'].append(64)
+    if opt.add_reg_head > 0:
+        for num_h in range(opt.add_reg_head):
+            opt.head_conv['reg'].append(64)
     print('input h w:', opt.input_h, opt.input_w)
     print('heads', opt.heads)
     print('weights', opt.weights)
