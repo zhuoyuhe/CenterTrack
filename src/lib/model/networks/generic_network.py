@@ -9,6 +9,7 @@ from .backbones.resnet import Resnet
 from .backbones.mobilenet import MobileNetV2
 from .necks.dlaup import DLASeg
 from .necks.msraup import MSRAUp
+from .MTL_attention_utils import PadNet
 
 backbone_factory = {
   'dla34': dla34,
@@ -45,6 +46,8 @@ class GenericNetwork(nn.Module):
         last_channel = self.neck.out_channel
         self.num_stacks = num_stacks
         self.heads = heads
+        if opt.pad_net:
+            self.padnet = PadNet(opt, head_convs)
         for head in self.heads:
             classes = self.heads[head]
             head_conv = head_convs[head]
@@ -104,4 +107,8 @@ class GenericNetwork(nn.Module):
           for head in self.heads:
               z[head] = self.__getattr__(head)(feats[s])
           out.append(z)
+      if self.opt.pad_net:
+          assert not self.opt.model_output_list, "when use PadNet, --model_output_list should be false"
+          pad_out = [self.padnet(out[0])]
+          return out, pad_out
       return out

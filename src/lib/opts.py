@@ -267,21 +267,30 @@ class opts(object):
     # uncertainty params
     self.parser.add_argument("--uncer_mode", type=str, default='IMPROVED', help="BASIC | IMPROVED")
     self.parser.add_argument("--logsigma", type=dict, default={'det': 0.5181, 'ddd': 0.7931})
+
     # GradNorm params
     self.parser.add_argument("--gradnorm_alpha", type=float, default=1.0)
     self.parser.add_argument("--gradnorm_thred", type=float, default=100)
     self.parser.add_argument("--grad_weight", type=dict, default={'det':  1.4724, 'ddd': 0.5276})
     self.parser.add_argument("--grad_l0", type=dict, default={'det': 7.688497, 'ddd': 12.817436})
+
     # custom dataset
     self.parser.add_argument('--custom_dataset_img_path', default='')
     self.parser.add_argument('--custom_dataset_ann_path', default='')
     self.parser.add_argument('--exp_subid', type=str, default='')
 
-    #branch
+    # branch
     self.parser.add_argument('--add_depth_head', type=int, default=0)
     self.parser.add_argument('--add_rot_head', type=int, default=0)
     self.parser.add_argument('--add_hw_head', type=int, default=0)
     self.parser.add_argument('--add_reg_head', type=int, default=0)
+
+    # attention
+    self.parser.add_argument('--pad_net', action='store_true')
+
+    # PadNet params
+    self.parser.add_argument('--pad_channel', type=int, default=64)
+    self.parser.add_argument('--inter_weight', type=float, default=1.0)
 
   def parse(self, args=''):
     if args == '':

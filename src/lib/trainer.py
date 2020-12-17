@@ -32,11 +32,11 @@ class GenericLoss(torch.nn.Module):
 
     def _sigmoid_output(self, output):
         if 'hm' in output:
-            output['hm'] = _sigmoid(output['hm'])
+            output['hm'] = _sigmoid(output['hm'].clone())
         if 'hm_hp' in output:
-            output['hm_hp'] = _sigmoid(output['hm_hp'])
+            output['hm_hp'] = _sigmoid(output['hm_hp'].clone())
         if 'dep' in output:
-            output['dep'] = 1. / (output['dep'].sigmoid() + 1e-6) - 1.
+            output['dep'] = 1. / (output['dep'].clone().sigmoid() + 1e-6) - 1.
         return output
 
     def forward(self, outputs, batch):
@@ -202,16 +202,26 @@ class LossWithStrategy(GenericLoss):
 
 
 class ModleWithLoss(torch.nn.Module):
-    def __init__(self, model, loss):
+    def __init__(self, model, loss, opt):
         super(ModleWithLoss, self).__init__()
         self.model = model
         self.loss = loss
+        self.opt = opt
 
     def forward(self, batch, epoch=None):
         pre_img = batch['pre_img'] if 'pre_img' in batch else None
         pre_hm = batch['pre_hm'] if 'pre_hm' in batch else None
-        outputs = self.model(batch['image'], pre_img, pre_hm)
-        loss, loss_stats = self.loss(outputs, batch, epoch)
+        if self.opt.pad_net:
+            inter_outputs, outputs = self.model(batch['image'], pre_img, pre_hm)
+            inter_loss, inter_loss_stats = self.loss(inter_outputs, batch, epoch)
+            loss, loss_stats = self.loss(outputs, batch, epoch)
+            loss += self.opt.inter_weight * inter_loss
+            for head in inter_loss_stats:
+                loss_stats[head + '_inter'] = inter_loss_stats[head]
+            loss_stats['tot_2nd'] = loss_stats['tot'].detach() - loss_stats['tot_inter'].detach()
+        else:
+            outputs = self.model(batch['image'], pre_img, pre_hm)
+            loss, loss_stats = self.loss(outputs, batch, epoch)
         return outputs[-1], loss, loss_stats
 
 
@@ -221,9 +231,14 @@ class Trainer(object):
         self.opt = opt
         self.optimizer = optimizer
         param = list(model.neck.parameters())[-2]
-        print(param.shape)
+        # print(param.shape)
         self.loss_stats, self.loss = self._get_losses(opt, logger, param)
-        self.model_with_loss = ModleWithLoss(model, self.loss)
+        if opt.pad_net:
+            len_stat = len(self.loss_stats)
+            for state_n in range(len_stat):
+                self.loss_stats.append(self.loss_stats[state_n] + "_inter")
+            self.loss_stats.append('tot_2nd')
+        self.model_with_loss = ModleWithLoss(model, self.loss, opt)
         self.old_norm = 0
 
     def set_device(self, gpus, chunk_sizes, device):
@@ -261,8 +276,8 @@ class Trainer(object):
         opt = self.opt
         results = {}
         data_time, batch_time = AverageMeter(), AverageMeter()
-        avg_loss_stats = {l: AverageMeter() for l in self.loss_stats \
-                          if l == 'tot' or opt.weights[l] > 0}
+        avg_loss_stats = {l: AverageMeter() for l in self.loss_stats} #\
+                          # if l == 'tot' or opt.weights[l] > 0}
         num_iters = len(data_loader) if opt.num_iters < 0 else opt.num_iters
         bar = Bar('{}/{}'.format(opt.task, opt.exp_id), max=num_iters)
         end = time.time()
@@ -305,8 +320,10 @@ class Trainer(object):
                         model_with_loss.loss.loss_model.weight.grad = temp_grad
                         model_with_loss.loss.optimizer.step()
                 else:
+                    # torch.autograd.grad(loss, model_with_loss.model.padnet.parameters())
                     loss.backward()
                 self.optimizer.step()
+                print(float(loss))
                 if opt.weight_strategy == 'UNCER':
                     if len(self.opt.gpus) > 1:
                         model_with_loss.module.loss.optimizer.step()
