@@ -109,6 +109,10 @@ class GenericNetwork(nn.Module):
           out.append(z)
       if self.opt.pad_net:
           assert not self.opt.model_output_list, "when use PadNet, --model_output_list should be false"
+          assert len(out) == 1, "currently only supply single stack"
+          copy_out = {}
+          for out_head in out[0]:
+              copy_out[out_head] = out[0][out_head].clone()
           pad_out = [self.padnet(out[0])]
-          return out, pad_out
+          return [copy_out], pad_out
       return out

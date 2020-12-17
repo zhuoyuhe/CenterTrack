@@ -15,7 +15,7 @@ class PadNet(nn.Module):
         for head in self.heads:
             num_class = self.heads[head]
             Y2F = nn.Sequential(nn.Conv2d(num_class, opt.pad_channel, stride=1, kernel_size=3, padding=1),
-                                nn.ReLU())
+                                nn.ReLU(inplace=True))
             get_gate = nn.Sequential(nn.Conv2d(opt.pad_channel, opt.pad_channel, stride=1, kernel_size=3, padding=1),
                                  nn.Sigmoid())
             trans = nn.Conv2d(opt.pad_channel, opt.pad_channel, stride=1, kernel_size=3, padding=1)
@@ -63,7 +63,6 @@ class PadNet(nn.Module):
               else:
                 fill_fc_weights(fc)
             self.__setattr__(head + 'out', fc)
-        a=1
 
     def forward(self, inter_out):
         f = {}

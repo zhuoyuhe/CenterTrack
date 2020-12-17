@@ -32,11 +32,11 @@ class GenericLoss(torch.nn.Module):
 
     def _sigmoid_output(self, output):
         if 'hm' in output:
-            output['hm'] = _sigmoid(output['hm'].clone())
+            output['hm'] = _sigmoid(output['hm'])
         if 'hm_hp' in output:
-            output['hm_hp'] = _sigmoid(output['hm_hp'].clone())
+            output['hm_hp'] = _sigmoid(output['hm_hp'])
         if 'dep' in output:
-            output['dep'] = 1. / (output['dep'].clone().sigmoid() + 1e-6) - 1.
+            output['dep'] = 1. / (output['dep'].sigmoid() + 1e-6) - 1.
         return output
 
     def forward(self, outputs, batch):
