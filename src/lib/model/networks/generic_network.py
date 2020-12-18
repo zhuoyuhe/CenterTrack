@@ -114,7 +114,7 @@ class GenericNetwork(nn.Module):
           for out_head in out[0]:
               copy_out[out_head] = out[0][out_head].clone()
           pad_out = [self.padnet(out[0])]
-          if self.pad_test:
+          if self.opt.pad_test:
               return pad_out
           return [copy_out], pad_out
       return out
