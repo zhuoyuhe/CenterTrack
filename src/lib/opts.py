@@ -291,6 +291,7 @@ class opts(object):
     # PadNet params
     self.parser.add_argument('--pad_channel', type=int, default=64)
     self.parser.add_argument('--inter_weight', type=float, default=1.0)
+    self.parser.add_argument('--pad_test', action='store_true')
 
   def parse(self, args=''):
     if args == '':
