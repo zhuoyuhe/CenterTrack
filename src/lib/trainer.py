@@ -215,10 +215,10 @@ class ModleWithLoss(torch.nn.Module):
             inter_outputs, outputs = self.model(batch['image'], pre_img, pre_hm)
             inter_loss, inter_loss_stats = self.loss(inter_outputs, batch, epoch)
             loss, loss_stats = self.loss(outputs, batch, epoch)
-            loss += self.opt.inter_weight * inter_loss
             for head in inter_loss_stats:
                 loss_stats[head + '_inter'] = inter_loss_stats[head]
-            loss_stats['tot_2nd'] = loss_stats['tot'].detach() - loss_stats['tot_inter'].detach()
+            loss_stats['tot_2nd'] = loss_stats['tot'].clone().detach()
+            loss += self.opt.inter_weight * inter_loss
         else:
             outputs = self.model(batch['image'], pre_img, pre_hm)
             loss, loss_stats = self.loss(outputs, batch, epoch)
