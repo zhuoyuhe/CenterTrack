@@ -9,7 +9,7 @@ from .backbones.resnet import Resnet
 from .backbones.mobilenet import MobileNetV2
 from .necks.dlaup import DLASeg
 from .necks.msraup import MSRAUp
-from .MTL_attention_utils import PadNet
+from .MTL_attention_utils import PadNet, FADNet
 
 backbone_factory = {
   'dla34': dla34,
@@ -48,6 +48,8 @@ class GenericNetwork(nn.Module):
         self.heads = heads
         if opt.pad_net:
             self.padnet = PadNet(opt, head_convs)
+        if opt.fad_net:
+            self.fadnet =  FADNet(opt)
         for head in self.heads:
             classes = self.heads[head]
             head_conv = head_convs[head]
@@ -95,6 +97,17 @@ class GenericNetwork(nn.Module):
       y = self.backbone(x, pre_img, pre_hm)
       feats = self.neck(y)
       out = []
+      if self.opt.fad_net:
+          assert not self.opt.model_output_list, "Currently only supply dict format output for FADNet"
+          assert self.num_stacks == 1, "currently only supply single stack for FADNet"
+          pad_feats_list = self.fadnet(feats[0])
+          z = {}
+          z['hm'] = self.__getattr__('hm')(feats[0])
+          for step in range(self.opt.fad_step):
+              for head in self.opt.step_head[step]:
+                  z[head] = self.__getattr__(head)(pad_feats_list[step])
+          out = [z]
+
       if self.opt.model_output_list:
         for s in range(self.num_stacks):
           z = []
@@ -108,8 +121,8 @@ class GenericNetwork(nn.Module):
               z[head] = self.__getattr__(head)(feats[s])
           out.append(z)
       if self.opt.pad_net:
-          assert not self.opt.model_output_list, "when use PadNet, --model_output_list should be false"
-          assert len(out) == 1, "currently only supply single stack"
+          assert not self.opt.model_output_list, "Currently only supply dict format output for PadNet"
+          assert len(out) == 1, "currently only supply single stack for PadNet"
           copy_out = {}
           for out_head in out[0]:
               copy_out[out_head] = out[0][out_head].clone()

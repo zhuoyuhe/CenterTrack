@@ -287,11 +287,19 @@ class opts(object):
 
     # attention
     self.parser.add_argument('--pad_net', action='store_true')
+    self.parser.add_argument('--fad_net', action='store_true')
 
     # PadNet params
     self.parser.add_argument('--pad_channel', type=int, default=64)
     self.parser.add_argument('--inter_weight', type=float, default=1.0)
     self.parser.add_argument('--pad_test', action='store_true')
+
+    # FadNet params
+    self.parser.add_argument('--fad_step', type=int, default=4)
+    self.parser.add_argument('--fad_kernel_size', type=int, default=3)
+    self.parser.add_argument('--hidden_channels', type=list, default=[24])
+    self.parser.add_argument('--input_channels', type=int, default=24)
+    self.parser.add_argument('--effective_step', type=list, default=[])
 
   def parse(self, args=''):
     if args == '':
@@ -415,7 +423,7 @@ class opts(object):
     opt.weights = {head: weight_dict[head] for head in opt.heads}
 
     if opt.weight_grouping:
-        opt.groups={'det' : ['hm', 'reg', 'wh']}
+        opt.groups={'det': ['hm', 'reg', 'wh']}
         if 'ddd' in opt.task:
             opt.groups['ddd'] = ['dep', 'rot', 'dim', 'amodel_offset']
         if 'tracking' in opt.task:
@@ -424,6 +432,8 @@ class opts(object):
         opt.groups = {head : [head] for head in opt.heads}
     opt.group_weight = {group: 1 for group in opt.groups}
 
+    if opt.fad_net:
+        opt.step_head = {0: ['reg', 'wh'], 1: ['dim', 'rot'], 2:['amodel_offset'], 3: ['dep']}
     for head in opt.weights:
       if opt.weights[head] == 0:
         del opt.heads[head]
