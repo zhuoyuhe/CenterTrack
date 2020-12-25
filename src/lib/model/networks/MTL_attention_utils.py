@@ -78,7 +78,7 @@ class PadNet(nn.Module):
             weighted_f[head] = self.__getattr__(head + 'trans')(f[head])
             distill_f[head] = f[head].clone()
         for head in self.heads:
-            if self.opt.grouping:
+            if self.opt.pad_grouping:
                 for d_head in self.opt.pad_group[head]:
                     distill_f[head] += torch.mul(gate[head], weighted_f[d_head])
             else:

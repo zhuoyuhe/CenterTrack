@@ -438,7 +438,7 @@ class opts(object):
 
     if opt.pad_grouping:
         opt.pad_group = {'hm': ['reg', 'amodel_offset'],
-                         'wh': ['hm', 'dim', 'depth', 'rot'],
+                         'wh': ['hm', 'dim', 'dep', 'rot'],
                          'reg': ['hm', 'amodel_offset'],
                          'dim': ['hm', 'rot', 'dep', 'wh'],
                          'rot': ['hm', 'wh', 'dim', 'dep'],
