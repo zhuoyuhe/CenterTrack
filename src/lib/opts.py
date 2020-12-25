@@ -293,6 +293,7 @@ class opts(object):
     self.parser.add_argument('--pad_channel', type=int, default=64)
     self.parser.add_argument('--inter_weight', type=float, default=1.0)
     self.parser.add_argument('--pad_test', action='store_true')
+    self.parser.add_argument('--pad_grouping', action='store_true')
 
     # FadNet params
     self.parser.add_argument('--fad_step', type=int, default=4)
@@ -434,6 +435,16 @@ class opts(object):
 
     if opt.fad_net:
         opt.step_head = {0: ['reg', 'wh'], 1: ['dim', 'rot'], 2:['amodel_offset'], 3: ['dep']}
+
+    if opt.pad_grouping:
+        opt.pad_group = {'hm': ['reg', 'amodel_offset'],
+                         'wh': ['hm', 'dim', 'depth', 'rot'],
+                         'reg': ['hm', 'amodel_offset'],
+                         'dim': ['hm', 'rot', 'dep', 'wh'],
+                         'rot': ['hm', 'wh', 'dim', 'dep'],
+                         'amodel_offset': ['hm', 'reg'],
+                         'dep': ['hm', 'wh', 'rot', 'dim']
+                         }
     for head in opt.weights:
       if opt.weights[head] == 0:
         del opt.heads[head]

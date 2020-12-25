@@ -13,6 +13,7 @@ class PadNet(nn.Module):
     def __init__(self, opt, head_convs, head_kernel=3):
         super(PadNet, self).__init__()
         self.heads = opt.heads
+        self.opt = opt
         for head in self.heads:
             num_class = self.heads[head]
             Y2F = nn.Sequential(nn.Conv2d(num_class, opt.pad_channel, stride=1, kernel_size=3, padding=1),
@@ -77,9 +78,13 @@ class PadNet(nn.Module):
             weighted_f[head] = self.__getattr__(head + 'trans')(f[head])
             distill_f[head] = f[head].clone()
         for head in self.heads:
-            for d_head in self.heads:
-                if d_head != head:
+            if self.opt.grouping:
+                for d_head in self.opt.pad_group[head]:
                     distill_f[head] += torch.mul(gate[head], weighted_f[d_head])
+            else:
+                for d_head in self.heads:
+                    if d_head != head:
+                        distill_f[head] += torch.mul(gate[head], weighted_f[d_head])
 
             output[head] = self.__getattr__(head + 'out')(distill_f[head])
 
