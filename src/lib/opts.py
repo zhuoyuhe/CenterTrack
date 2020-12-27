@@ -437,13 +437,13 @@ class opts(object):
         opt.step_head = {0: ['reg', 'wh'], 1: ['dim', 'rot'], 2:['amodel_offset'], 3: ['dep']}
 
     if opt.pad_grouping:
-        opt.pad_group = {'hm': ['reg', 'amodel_offset'],
-                         'wh': ['hm', 'dim', 'dep', 'rot'],
-                         'reg': ['hm', 'amodel_offset'],
-                         'dim': ['hm', 'rot', 'dep', 'wh'],
-                         'rot': ['hm', 'wh', 'dim', 'dep'],
+        opt.pad_group = {'hm': [],
+                         'wh': ['dim', 'dep'],
+                         'reg': ['amodel_offset'],
+                         'dim': ['dep', 'wh'],
+                         'rot': ['dim', 'dep'],
                          'amodel_offset': ['hm', 'reg'],
-                         'dep': ['hm', 'wh', 'rot', 'dim']
+                         'dep': ['wh', 'dim']
                          }
     for head in opt.weights:
       if opt.weights[head] == 0:
