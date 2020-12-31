@@ -107,27 +107,27 @@ class GenericNetwork(nn.Module):
               for head in self.opt.step_head[step]:
                   z[head] = self.__getattr__(head)(pad_feats_list[step])
           out = [z]
-
-      if self.opt.model_output_list:
-        for s in range(self.num_stacks):
-          z = []
-          for head in sorted(self.heads):
-              z.append(self.__getattr__(head)(feats[s]))
-          out.append(z)
       else:
-        for s in range(self.num_stacks):
-          z = {}
-          for head in self.heads:
-              z[head] = self.__getattr__(head)(feats[s])
-          out.append(z)
-      if self.opt.pad_net:
-          assert not self.opt.model_output_list, "Currently only supply dict format output for PadNet"
-          assert len(out) == 1, "currently only supply single stack for PadNet"
-          copy_out = {}
-          for out_head in out[0]:
-              copy_out[out_head] = out[0][out_head].clone()
-          pad_out = [self.padnet(out[0])]
-          if self.opt.pad_test:
-              return pad_out
-          return [copy_out], pad_out
+          if self.opt.model_output_list:
+            for s in range(self.num_stacks):
+              z = []
+              for head in sorted(self.heads):
+                  z.append(self.__getattr__(head)(feats[s]))
+              out.append(z)
+          else:
+            for s in range(self.num_stacks):
+              z = {}
+              for head in self.heads:
+                  z[head] = self.__getattr__(head)(feats[s])
+              out.append(z)
+          if self.opt.pad_net:
+              assert not self.opt.model_output_list, "Currently only supply dict format output for PadNet"
+              assert len(out) == 1, "currently only supply single stack for PadNet"
+              copy_out = {}
+              for out_head in out[0]:
+                  copy_out[out_head] = out[0][out_head].clone()
+              pad_out = [self.padnet(out[0])]
+              if self.opt.pad_test:
+                  return pad_out
+              return [copy_out], pad_out
       return out
