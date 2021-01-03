@@ -124,14 +124,14 @@ class ConvGRUCell(nn.Module):
 
     def init_hidden(self, batch_size, hidden, shape):
         if self.br is None:
-            self.br = Variable(torch.zeros(1, hidden, shape[0], shape[1]))#.cuda()
-            self.bz = Variable(torch.zeros(1, hidden, shape[0], shape[1]))#.cuda()
-            self.bin = Variable(torch.zeros(1, hidden, shape[0], shape[1]))#.cuda()
-            self.bhn = Variable(torch.zeros(1, hidden, shape[0], shape[1]))#.cuda()
+            self.br = Variable(torch.zeros(1, hidden, shape[0], shape[1])).cuda()
+            self.bz = Variable(torch.zeros(1, hidden, shape[0], shape[1])).cuda()
+            self.bin = Variable(torch.zeros(1, hidden, shape[0], shape[1])).cuda()
+            self.bhn = Variable(torch.zeros(1, hidden, shape[0], shape[1])).cuda()
         else:
             assert shape[0] == self.br.size()[2], 'Input Height Mismatched!'
             assert shape[1] == self.br.size()[3], 'Input Width Mismatched!'
-        return Variable(torch.zeros(batch_size, hidden, shape[0], shape[1]))#.cuda()
+        return Variable(torch.zeros(batch_size, hidden, shape[0], shape[1])).cuda()
 
 class FADNet(nn.Module):
     def __init__(self,opt):
