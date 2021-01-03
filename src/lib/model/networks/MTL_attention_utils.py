@@ -124,14 +124,14 @@ class ConvGRUCell(nn.Module):
 
     def init_hidden(self, batch_size, hidden, shape):
         if self.br is None:
-            self.br = Variable(torch.zeros(1, hidden, shape[0], shape[1])).cuda()
-            self.bz = Variable(torch.zeros(1, hidden, shape[0], shape[1])).cuda()
-            self.bin = Variable(torch.zeros(1, hidden, shape[0], shape[1])).cuda()
-            self.bhn = Variable(torch.zeros(1, hidden, shape[0], shape[1])).cuda()
+            self.br = Variable(torch.zeros(1, hidden, shape[0], shape[1]))#.cuda()
+            self.bz = Variable(torch.zeros(1, hidden, shape[0], shape[1]))#.cuda()
+            self.bin = Variable(torch.zeros(1, hidden, shape[0], shape[1]))#.cuda()
+            self.bhn = Variable(torch.zeros(1, hidden, shape[0], shape[1]))#.cuda()
         else:
             assert shape[0] == self.br.size()[2], 'Input Height Mismatched!'
             assert shape[1] == self.br.size()[3], 'Input Width Mismatched!'
-        return Variable(torch.zeros(batch_size, hidden, shape[0], shape[1])).cuda()
+        return Variable(torch.zeros(batch_size, hidden, shape[0], shape[1]))#.cuda()
 
 class FADNet(nn.Module):
     def __init__(self,opt):
@@ -147,11 +147,13 @@ class FADNet(nn.Module):
         else:
             self.effective_step = [i for i in range(self.step)]
         self._all_layers = []
-        for i in range(self.num_layers):
-            name = 'cell{}'.format(i)
-            cell = ConvGRUCell(self.input_channels[i], self.hidden_channels[i], self.kernel_size)
-            setattr(self, name, cell)
-            self._all_layers.append(cell)
+        for step in range(self.step):
+            for i in range(self.num_layers):
+                name = 'cell{}_{}'.format(step, i)
+                cell = ConvGRUCell(self.input_channels[i], self.hidden_channels[i], self.kernel_size)
+                setattr(self, name, cell)
+                self._all_layers.append(cell)
+        debug = 1
 
     def forward(self, input):
         internal_state = []
@@ -160,12 +162,13 @@ class FADNet(nn.Module):
             x = input
             for i in range(self.num_layers):
                 # all cells are initialized in the first step
-                name = 'cell{}'.format(i)
-                if step == 0:
+                name = 'cell{}_{}'.format(step, i)
+                if i == 0:
                     bsize, _, height, width = x.size()
                     h = getattr(self, name).init_hidden(batch_size=bsize, hidden=self.hidden_channels[i],
                                                              shape=(height, width))
-                    internal_state.append(h)
+                    if step == 0:
+                        internal_state.append(h)
 
                 # do forward
                 h = internal_state[i]
