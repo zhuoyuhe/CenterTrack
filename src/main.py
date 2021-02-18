@@ -38,6 +38,11 @@ def main(opt):
 
   print('Creating model...')
   model = create_model(opt.arch, opt.heads, opt.head_conv, opt=opt)
+  if opt.fix_shared:
+    for param in model.backbone.parameters():
+      param.requires_grad = False
+    for param in model.neck.parameters():
+      param.requires_grad = False
   optimizer = get_optimizer(opt, model)
   start_epoch = 0
   if opt.load_model != '':

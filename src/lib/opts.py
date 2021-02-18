@@ -250,7 +250,7 @@ class opts(object):
     self.parser.add_argument('--nuscenes_att_weight', type=float, default=1)
     self.parser.add_argument('--velocity', action='store_true')
     self.parser.add_argument('--velocity_weight', type=float, default=1)
-    self.parser.add_argument('--data_dir', type=str, default='C:/Users/zhuoyuhe/Desktop/CIS-700/CenterTrack/data',
+    self.parser.add_argument('--data_dir', type=str, default='',
                              help='dir of dataset')
 
     # optimizer
@@ -288,6 +288,7 @@ class opts(object):
     # attention
     self.parser.add_argument('--pad_net', action='store_true')
     self.parser.add_argument('--fad_net', action='store_true')
+    self.parser.add_argument('--local_attention', action="store_true")
 
     # PadNet params
     self.parser.add_argument('--pad_channel', type=int, default=64)
@@ -301,6 +302,12 @@ class opts(object):
     self.parser.add_argument('--hidden_channels', type=list, default=[24])
     self.parser.add_argument('--input_channels', type=int, default=24)
     self.parser.add_argument('--effective_step', type=list, default=[])
+
+    # local attention
+    self.parser.add_argument('--top_k', type=int, default=20)
+
+    # fix params
+    self.parser.add_argument('--fix_shared', action='store_true')
 
   def parse(self, args=''):
     if args == '':

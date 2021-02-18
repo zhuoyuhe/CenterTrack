@@ -35,12 +35,12 @@ def convert_eval_format(all_bboxes):
 if __name__ == '__main__':
     path = 'C:/Users/zhuoyuhe/Desktop/incepio/CenterTrack/exp/results/'
     coco = coco.COCO(path + "val.json")
-    with open(path + 'fadnet/save_results_nuscenes.json') as f:
+    with open(path + 'fadnet_no_share_45/save_results_nuscenes.json') as f:
         result = json.load(f)
     det = convert_eval_format(result)
     json.dump(det,
-              open('{}fadnet/results_coco.json'.format(path), 'w'))
-    coco_dets = coco.loadRes(path + 'fadnet/results_coco.json')
+              open('{}fadnet_no_share_45/results_coco.json'.format(path), 'w'))
+    coco_dets = coco.loadRes(path + 'fadnet_no_share_45/results_coco.json')
     coco_eval = COCOeval(coco, coco_dets, "bbox")
     coco_eval.evaluate()
     coco_eval.accumulate()
