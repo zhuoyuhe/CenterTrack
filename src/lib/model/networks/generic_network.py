@@ -80,6 +80,15 @@ class GenericNetwork(nn.Module):
                     convs[1], nn.ReLU(inplace=True),
                     convs[2], nn.ReLU(inplace=True),
                     convs[3], nn.ReLU(inplace=True), out)
+              elif len(convs) == 7:
+                fc = nn.Sequential(
+                    convs[0], nn.ReLU(inplace=True),
+                    convs[1], nn.ReLU(inplace=True),
+                    convs[2], nn.ReLU(inplace=True),
+                    convs[3], nn.ReLU(inplace=True),
+                    convs[4], nn.ReLU(inplace=True),
+                    convs[5], nn.ReLU(inplace=True),
+                    convs[6], nn.ReLU(inplace=True),out)
               if 'hm' in head:
                 fc[-1].bias.data.fill_(opt.prior_bias)
               else:
