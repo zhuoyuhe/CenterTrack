@@ -29,6 +29,7 @@ def main(opt):
   torch.manual_seed(opt.seed)
   torch.backends.cudnn.benchmark = not opt.not_cuda_benchmark and not opt.test
   Dataset = get_dataset(opt.dataset)
+  print(Dataset)
   opt = opts().update_dataset_info_and_set_heads(opt, Dataset)
   print(opt)
   if not opt.not_set_cuda_env:
@@ -64,8 +65,16 @@ def main(opt):
       return
 
   print('Setting up train data...')
+  if opt.using_randomly_half:
+    test_data = Dataset(opt, 'train')
+    length = len(test_data)
+    actual_dataset, _ = torch.utils.data.random_split(test_data, [int(length * opt.use_percent), length - int(length * opt.use_percent)],
+                                                      generator=torch.Generator().manual_seed(opt.seed))
+  else:
+    actual_dataset = Dataset(opt, 'train')
+
   train_loader = torch.utils.data.DataLoader(
-      Dataset(opt, 'train'), batch_size=opt.batch_size, shuffle=True,
+      actual_dataset, batch_size=opt.batch_size, shuffle=True,
       num_workers=opt.num_workers, pin_memory=True, drop_last=True
   )
 

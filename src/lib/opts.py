@@ -309,6 +309,10 @@ class opts(object):
     # fix params
     self.parser.add_argument('--fix_shared', action='store_true')
 
+    # Using part of the dataset
+    self.parser.add_argument('--using_randomly_half', action='store_true')
+    self.parser.add_argument('--use_percent', type=float, default=0.5)
+
   def parse(self, args=''):
     if args == '':
       opt = self.parser.parse_args()
