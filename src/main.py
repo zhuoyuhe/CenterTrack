@@ -39,9 +39,10 @@ def main(opt):
 
   print('Creating model...')
   model = create_model(opt.arch, opt.heads, opt.head_conv, opt=opt)
-  if opt.fix_shared:
+  if opt.fix_backbone:
     for param in model.backbone.parameters():
       param.requires_grad = False
+  if opt.fix_neck:
     for param in model.neck.parameters():
       param.requires_grad = False
   optimizer = get_optimizer(opt, model)
@@ -68,8 +69,9 @@ def main(opt):
   if opt.using_randomly_half:
     test_data = Dataset(opt, 'train')
     length = len(test_data)
+    torch.random.manual_seed(opt.seed)
     actual_dataset, _ = torch.utils.data.random_split(test_data, [int(length * opt.use_percent), length - int(length * opt.use_percent)],
-                                                      generator=torch.Generator().manual_seed(opt.seed))
+                                                      )
   else:
     actual_dataset = Dataset(opt, 'train')
 

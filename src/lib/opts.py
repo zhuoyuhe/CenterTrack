@@ -307,7 +307,8 @@ class opts(object):
     self.parser.add_argument('--top_k', type=int, default=20)
 
     # fix params
-    self.parser.add_argument('--fix_shared', action='store_true')
+    self.parser.add_argument('--fix_backbone', action='store_true')
+    self.parser.add_argument('--fix_neck', action='store_true')
 
     # Using part of the dataset
     self.parser.add_argument('--using_randomly_half', action='store_true')
