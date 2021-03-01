@@ -68,8 +68,8 @@ def main(opt):
   if opt.using_randomly_half:
     test_data = Dataset(opt, 'train')
     length = len(test_data)
-    actual_dataset, _ = torch.utils.data.random_split(test_data, [int(length * opt.use_percent), length - int(length * opt.use_percent)],
-                                                      generator=torch.Generator().manual_seed(opt.seed))
+    torch.random.manual_seed(opt.seed)
+    actual_dataset, _ = torch.utils.data.random_split(test_data, [int(length * opt.use_percent), length - int(length * opt.use_percent)])
   else:
     actual_dataset = Dataset(opt, 'train')
 
