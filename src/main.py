@@ -42,8 +42,11 @@ def main(opt):
   if opt.fix_backbone:
     for param in model.backbone.parameters():
       param.requires_grad = False
-  if opt.fix_neck:
-    for param in model.neck.parameters():
+  if opt.fix_dla_up:
+    for param in model.neck.dla_up.parameters():
+      param.requires_grad = False
+  if opt.fix_ida_up:
+    for param in model.neck.ida_up.parameters():
       param.requires_grad = False
   optimizer = get_optimizer(opt, model)
   start_epoch = 0

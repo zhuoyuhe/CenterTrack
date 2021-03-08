@@ -323,7 +323,6 @@ class Trainer(object):
                     # torch.autograd.grad(loss, model_with_loss.model.padnet.parameters())
                     loss.backward()
                 self.optimizer.step()
-                print(float(loss))
                 if opt.weight_strategy == 'UNCER':
                     if len(self.opt.gpus) > 1:
                         model_with_loss.module.loss.optimizer.step()

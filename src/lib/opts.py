@@ -308,7 +308,8 @@ class opts(object):
 
     # fix params
     self.parser.add_argument('--fix_backbone', action='store_true')
-    self.parser.add_argument('--fix_neck', action='store_true')
+    self.parser.add_argument('--fix_dla_up', action='store_true')
+    self.parser.add_argument('--fix_ida_up', action='store_true')
 
     # Using part of the dataset
     self.parser.add_argument('--using_randomly_half', action='store_true')
